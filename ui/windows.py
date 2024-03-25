@@ -3,19 +3,28 @@ from customtkinter import CTk
 from ui.contexts.authorizationWindow import AuthorizationWindowContext
 
 
-class Window(CTk):
+class BaseWindow(CTk):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.context = None
+        self.previousContext = None
 
     def close(self):
         CTk.destroy(self)
 
+    def changeContext(self, contextClass, data=None):
+        if contextClass is not None:
+            self.previousContext = self.context.__class__
+            self.context = contextClass(self, data)
 
-class MainWindow(Window):
+    def returnToPrevious(self, data=None):
+        self.changeContext(self.previousContext, data)
+
+
+class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__()
 
         self.context = AuthorizationWindowContext(self, None)
 
-    def changeContext(self, contextClass, data=None):
-        self.context = contextClass(self, data)
+

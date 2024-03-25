@@ -6,9 +6,11 @@ from customtkinter import (
 
 from settingsConfig import g_settingsConfig
 from .context import Context
+from .subContext import SubContext
 
 
 class MainWindowContext(Context):
+    # MainWindowContextAdmin
     def __init__(self, window, data):
         super().__init__(window, data)
         self.userRoleFrame = CTkFrame(window)
@@ -33,7 +35,6 @@ class MainWindowContext(Context):
         self.buttonExit.pack(padx=10, pady=10)
 
     def _onButtonStorage(self):
-        from .subContext import SubContext
         window = self._window
         self.clear()
         window.changeContext(SubContext, {"text": "Label text"})

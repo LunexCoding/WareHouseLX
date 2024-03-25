@@ -5,7 +5,6 @@ from .mainWindow import MainWindowContext
 from userAuthorization import Authorization
 
 
-
 class AuthorizationWindowContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
