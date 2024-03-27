@@ -2,12 +2,15 @@ from customtkinter import CTk
 
 from ui.contexts.authorizationWindow import AuthorizationWindowContext
 
+from .popupWindow import PopupWindow
+
 
 class BaseWindow(CTk):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self):
+        super().__init__()
         self.context = None
         self.previousContext = None
+        self.topLevelWindow = None
 
     def close(self):
         CTk.destroy(self)
@@ -20,11 +23,18 @@ class BaseWindow(CTk):
     def returnToPrevious(self, data=None):
         self.changeContext(self.previousContext, data)
 
+    def openTopLevel(self, contextClass, data=None):
+        if self.topLevelWindow is None or not self.checkTopLevelWindow():
+            self.topLevelWindow = PopupWindow(contextClass, data)  # create window if its None or destroyed
+        else:
+            self.topLevelWindow.focus()  # if window exists focus it
+
+    def checkTopLevelWindow(self):
+        return self.topLevelWindow.winfo_exists()
+
 
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__()
 
         self.context = AuthorizationWindowContext(self, None)
-
-

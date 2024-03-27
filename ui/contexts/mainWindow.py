@@ -7,15 +7,15 @@ from customtkinter import (
 from settingsConfig import g_settingsConfig
 from .context import Context
 from .subContext import SubContext
+from .directoryReportWindow import DirectoryReportWindowContext
 
 
 class MainWindowContext(Context):
-    # MainWindowContextAdmin
     def __init__(self, window, data):
         super().__init__(window, data)
         self.userRoleFrame = CTkFrame(window)
-        self.userRoleFrame.grid(row=0, column=0, padx=10, pady=10)
         self.userRoleLabel = CTkLabel(self.userRoleFrame, text=g_settingsConfig.role, font=("Helvetica", 30))
+        self.userRoleFrame.grid(row=0, column=0, padx=10, pady=10)
         self.userRoleLabel.pack(padx=10, pady=10)
 
         self.buttonFrame = CTkFrame(window)
@@ -40,7 +40,9 @@ class MainWindowContext(Context):
         window.changeContext(SubContext, {"text": "Label text"})
 
     def _onButtonParish(self):
-        ...
+        window = self._window
+        self.clear()
+        window.changeContext(DirectoryReportWindowContext)
 
     def _onButtonExpense(self):
         ...
