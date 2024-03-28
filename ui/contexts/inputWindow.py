@@ -10,6 +10,7 @@ class InputWindowContext(Context):
         name = data["name"]
         window.title(name)
         window.geometry("400x200")
+        window.focus()
         CTkLabel(window, text="Наименование:").pack()
         self.priceEntry = CTkEntry(window)
         self.priceEntry.pack()

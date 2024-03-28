@@ -29,15 +29,16 @@ class DirectoryReportWindowContext(Context):
     def createReferenceWindow(self):
         if not self.buttonSaveCreated:
             self._window.openTopLevel(InputWindowContext, {"name": "Input Window"})
-            buttonSave = CTkButton(self._window.topLevelWindow, text="Сохранить", command=lambda: self.saveReference(self._window.topLevelWindow.context.priceEntry.get(),self._window.topLevelWindow))
+            buttonSave = CTkButton(self._window.topLevelWindow, text="Сохранить", command=lambda: self.saveReference(self._window.topLevelWindow.context.priceEntry.get()))
             buttonSave.pack(side="right", padx=10, pady=10)
             self.buttonSaveCreated = True
 
-    def saveReference(self, name, reference_window):
-        new_reference = {"Наименование": name}
-        self.referenceList.insert(0, new_reference)
+    def saveReference(self, name):
+        reference = {"Наименование": name}
+        self.referenceList.insert(0, reference)
         self.updateReferenceFrame()
-        reference_window.destroy()
+        self._window.topLevelWindow.close()
+        self.buttonSaveCreated = False
 
     def showReference(self, reference):
         selectedName = reference['Наименование']

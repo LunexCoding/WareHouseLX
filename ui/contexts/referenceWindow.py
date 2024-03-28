@@ -10,6 +10,7 @@ class ReferenceWindow(Context):
         name = data["name"]
         window.title(name)
         window.geometry("400x200")
+        window.focus()
         CTkLabel(window, text=f"Информация о справочнике: {name}").pack(pady=20)
         buttonExit = CTkButton(window, text="Закрыть", command=window.destroy)
         buttonExit.pack()

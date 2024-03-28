@@ -1,8 +1,6 @@
-from customtkinter import CTk
+from customtkinter import CTk, CTkToplevel
 
 from ui.contexts.authorizationWindow import AuthorizationWindowContext
-
-from .popupWindow import PopupWindow
 
 
 class BaseWindow(CTk):
@@ -38,3 +36,13 @@ class MainWindow(BaseWindow):
         super().__init__()
 
         self.context = AuthorizationWindowContext(self, None)
+
+
+class PopupWindow(CTkToplevel):
+    def __init__(self, contextClass, data=None):
+        super().__init__()
+
+        self.context = contextClass(self, data)
+
+    def close(self):
+        CTkToplevel.destroy(self)
