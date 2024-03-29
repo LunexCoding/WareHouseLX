@@ -7,7 +7,7 @@ from customtkinter import (
 from settingsConfig import g_settingsConfig
 from .context import Context
 from .subContext import SubContext
-from .directoryReportWindow import DirectoryReportWindowContext
+from .storageWindow import StorageWindowContext
 
 
 class MainWindowContext(Context):
@@ -42,7 +42,7 @@ class MainWindowContext(Context):
     def _onButtonParish(self):
         window = self._window
         self.clear()
-        window.changeContext(DirectoryReportWindowContext)
+        window.changeContext(StorageWindowContext)
 
     def _onButtonExpense(self):
         ...
