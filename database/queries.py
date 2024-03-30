@@ -1,4 +1,8 @@
 class SqlQueries:
+    @staticmethod
+    def getTableColumns(tableName):
+        return f"""PRAGMA table_info({tableName})"""
+
     # DELETE A ROW FROM A TABLE #
     @staticmethod
     def deleteFromTable(tableName, targetElement, targetValue):
@@ -19,39 +23,52 @@ class SqlQueries:
     @staticmethod
     def insertIntoTable(tableName,args):
         return f"""
-            INSERT INTO {tableName}
-            ({', '.join([char for char in args])})
-            VALUES ({', '.join(["?" for char in args])})
+        INSERT INTO {tableName}
+        ({', '.join([char for char in args])})
+        VALUES ({', '.join(["?" for char in args])})
         """
 
     # SELECT ROWS FROM TABLE #
     @staticmethod
-    def selectFromTable(tableName, requestData, args=None):
-        if requestData == "":
-            return SqlQueries._selectAllFromTable(tableName)
-        if requestData is not None:
-            return SqlQueries._selectFromTableByWhere(tableName, requestData, args)
-        return SqlQueries._selectFromTableByParams(tableName, args)
-
-    # SELECT ROWS FROM THE REQUIRED TABLE #
-    @staticmethod
-    def _selectFromTableByParams(tableName, args):
-        return f"""
-        SELECT {', '.join([char for char in args])}
-        FROM {tableName}
-        """
-
-    # SELECT ALL ROWS FROM THE REQUIRED TABLE #
-    @staticmethod
-    def _selectAllFromTable(tableName):
-        return f"""
-        SELECT FROM {tableName}
-        """
+    def selectFromTable(tableName, requestData, args=None, limit=None, offset=None):
+        if requestData == "*":
+            return SqlQueries._selectAllFromTable(tableName, limit, offset)
+        if (requestData is not None) and (requestData != "*"):
+            return SqlQueries._selectFromTableByWhere(tableName, requestData, args, limit, offset)
+        return SqlQueries._selectFromTableByParams(tableName, args, limit, offset)
 
     @staticmethod
-    def _selectFromTableByWhere(tableName, requestData, args):
-        return """
-        SELECT {}
-        FROM {}
-        WHERE {}
-        """.format(", ".join([char for char in args]), tableName, " AND ".join([f'{key}="{value}"' for (key, value) in requestData.items()]))
+    def _selectFromTableByParams(tableName, args, limit, offset):
+        query = f"""
+           SELECT {', '.join([char for char in args])}
+           FROM {tableName}
+           """
+        if limit is not None:
+            query += f"\nLIMIT {limit}"
+        if offset is not None:
+            query += f"\nOFFSET {offset}"
+        return query
+
+    @staticmethod
+    def _selectAllFromTable(tableName, limit, offset):
+        query = f"""
+           SELECT * FROM {tableName}
+           """
+        if limit is not None:
+            query += f"\nLIMIT {limit}"
+        if offset is not None:
+            query += f"\nOFFSET {offset}"
+        return query
+
+    @staticmethod
+    def _selectFromTableByWhere(tableName, requestData, args, limit, offset):
+        query = f"""
+           SELECT {', '.join([char for char in args])}
+           FROM {tableName}
+           WHERE {' AND '.join([f'{key}="{value}"' for (key, value) in requestData.items()])}
+           """
+        if limit is not None:
+            query += f"\nLIMIT {limit}"
+        if offset is not None:
+            query += f"\nOFFSET {offset}"
+        return query

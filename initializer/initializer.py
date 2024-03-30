@@ -2,10 +2,10 @@ from pathlib import Path
 
 from database.queries import SqlQueries as coreQueries
 from database.tables import DatabaseTables
-from settingsConfig import g_settingsConfig
 from database.pipeline import DatabasePipeline
 from .queries import SqlQueries
 from .consts import Constants
+from settingsConfig import g_settingsConfig
 from tools.fileSystem import FileSystem
 
 

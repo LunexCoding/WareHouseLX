@@ -10,7 +10,8 @@ class _SettingsConfig:
         __settings = {}
         __settings["DATABASE"] = dict(
             database=config("DB_NAME"),
-            databaseDirectory=config("DB_DIRECTORY")
+            databaseDirectory=config("DB_DIRECTORY"),
+            sampleLimit=3
         )
         return __settings
 
@@ -25,6 +26,10 @@ class _SettingsConfig:
     @role.setter
     def role(self, role):
         self.__role = role
+
+    @property
+    def sampleLimit(self):
+        return self.DatabaseSettings["sampleLimit"]
 
 
 g_settingsConfig = _SettingsConfig()
