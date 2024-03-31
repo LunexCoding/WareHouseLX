@@ -35,11 +35,12 @@ class SqlQueries:
         if requestData == "*":
             return SqlQueries._selectAllFromTable(tableName, limit, offset)
         if (requestData is not None) and (requestData != "*"):
-            return SqlQueries._selectFromTableByWhere(tableName, requestData, args, limit, offset)
+            return SqlQueries._selectFromTableByWhere(tableName, requestData, limit, offset)
         return SqlQueries._selectFromTableByParams(tableName, args, limit, offset)
 
     @staticmethod
     def _selectFromTableByParams(tableName, args, limit, offset):
+        print("call")
         query = f"""
            SELECT {', '.join([char for char in args])}
            FROM {tableName}
@@ -62,14 +63,45 @@ class SqlQueries:
         return query
 
     @staticmethod
-    def _selectFromTableByWhere(tableName, requestData, args, limit, offset):
-        query = f"""
-           SELECT {', '.join([char for char in args])}
-           FROM {tableName}
-           WHERE {' AND '.join([f'{key}="{value}"' for (key, value) in requestData.items()])}
-           """
+    def _selectFromTableByWhere(tableName, requestData, limit, offset):
+        conditions = requestData["condition"]
+        tableColumns = requestData.get("tableColumns", None)
+        if tableColumns is not None:
+            columns = []
+            data = None
+            if isinstance(conditions, list):
+                conditionsData = []
+                for condition in conditions:
+                    conditionData = condition.split()
+                    for word in conditionData:
+                        if word in tableColumns:
+                            columns.append(word)
+                            conditionData.remove(word)
+                            conditionsData.append(" ".join(conditionData))
+                    data = conditionsData
+            else:
+                conditionData = conditions.split()
+                for word in conditionData:
+                    if word in tableColumns:
+                        columns.append(word)
+                        conditionData.remove(word)
+                data = " ".join(conditionData)
+        if len(columns) == 1:
+            columns = ''.join(columns)
+        query = f"SELECT * FROM {tableName}"
+        if isinstance(data, list):
+            if columns:
+                query += " WHERE "
+                for i, column in enumerate(columns):
+                    query += f"{column} {' '.join(data[i].split())}"
+                    if i < len(columns) - 1:  # Проверяем, не последний ли это элемент
+                        query += " AND "  # Добавляем оператор AND после каждого условия, кроме последнего
+            else:
+                query += f" WHERE {' '.join(data)}"
+        else:
+            query += f" WHERE {columns} {''.join(data)}"
         if limit is not None:
-            query += f"\nLIMIT {limit}"
+            query += f" LIMIT {limit}"
         if offset is not None:
-            query += f"\nOFFSET {offset}"
+            query += f" OFFSET {offset}"
         return query

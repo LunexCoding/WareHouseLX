@@ -65,8 +65,21 @@ class _ReferenceBook:
                 SqlQueries.deleteFromTable(self._table, idColumn, rowID)
             )
 
-    def searchRowByParams(self, target, filter):
-        ...
+    def searchRowByParams(self, filterData, limit=None, offset=None):
+        requestData = {
+            "condition": filterData,
+            "tableColumns": self._columns
+        }
+        SqlQueries.selectFromTable(self._table, requestData)
+        with databaseSession as db:
+            rows = db.getData(
+                SqlQueries.selectFromTable(self._table, requestData, limit, offset),
+                all=True
+            )
+        result = []
+        for row in rows:
+            result.append({self._columns[i]: row[i] for i in range(len(self._columns))})
+        return result
 
     @property
     def rows(self):
