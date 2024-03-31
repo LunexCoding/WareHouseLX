@@ -21,7 +21,7 @@ class _ReferenceBook:
         rows = self._loadRowsFromDB()
         if rows:
             self._rowList.extend(rows)
-            self._loadedRecordsCount += len(rows)  # Обновляем количество загруженных записей
+            self._loadedRecordsCount += len(rows)
 
     def _loadRowsFromDB(self):
         with databaseSession as db:
@@ -34,25 +34,38 @@ class _ReferenceBook:
             result.append({self._columns[i]: row[i] for i in range(len(self._columns))})
         return result
 
-    def addRow(self):
-        ...
+    def addRow(self, row):
+        self._insertRowToDB(row)
 
-    def _insertRowToDB(self):
-        ...
+    def _insertRowToDB(self, row):
+        with databaseSession as db:
+            db.execute(
+                SqlQueries.insertIntoTable(self._table, self._columns[1:]),
+                data=list(row.values())
+            )
 
-    def editRow(self):
-        ...
+    def editRow(self, rowID, data):
+        self._updateRowIntoDB(rowID, data)
 
-    def _updateRowIntoDB(self):
-        ...
+    def _updateRowIntoDB(self, rowID, data):
+        idColumn = self._columns[0]
+        with databaseSession as db:
+            db.execute(
+                SqlQueries.updateTable(self._table, idColumn, rowID, **data),
+                data=list(data.values())
+            )
 
-    def deleteRow(self):
-        ...
+    def deleteRow(self, rowID):
+        self._deleteRowFromDB(rowID)
 
-    def _deleteRowFromDB(self):
-        ...
+    def _deleteRowFromDB(self, rowID):
+        idColumn = self._columns[0]
+        with databaseSession as db:
+            db.execute(
+                SqlQueries.deleteFromTable(self._table, idColumn, rowID)
+            )
 
-    def _searchRowByParams(self):
+    def searchRowByParams(self, target, filter):
         ...
 
     @property

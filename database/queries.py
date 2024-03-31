@@ -12,7 +12,8 @@ class SqlQueries:
         """
 
     # UPDATE A ROW IN A TABLE #
-    def updateTable(tableName, targetElement, targetValue, *kwargs):
+    @staticmethod
+    def updateTable(tableName, targetElement, targetValue, **kwargs):
         return f"""
         UPDATE {tableName}
         SET {", ".join([f"{key}=?" for key, value in kwargs.items()])}
