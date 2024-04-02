@@ -1,43 +1,50 @@
+from tkinter import ttk
+from tkinter.ttk import Treeview, Scrollbar
 from datetime import datetime
 
 import customtkinter as ctk
-from tkinter.ttk import Treeview, Scrollbar
-
-from customtkinter import CTkFrame, CTkLabel
+from customtkinter import CTkFrame, CTkLabel, CTkButton
 
 from .context import Context
+from .consts import Constants
 from settingsConfig import g_settingsConfig
 
 
-class StorageWindowContext(Context):
+class IncomingDocumentsWindowContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
         self.referenceList = []
 
-        self.frame = ctk.CTkFrame(window)
-        self.userRoleFrame = CTkFrame(self.frame)
+        self.buttonFrame = CTkFrame(window)
+        self.userRoleFrame = CTkFrame(self.buttonFrame)
         self.userRoleLabel = CTkLabel(self.userRoleFrame, text=g_settingsConfig.role, font=("Helvetica", 30))
-
-        self.label = ctk.CTkLabel(self.frame, text="Склад", font=("Helvetica", 30))
 
         self.userRoleLabel.pack(side="left", padx=10, pady=10)
         self.userRoleFrame.pack(side="left", padx=10, pady=10)
-        self.label.pack(side="left", padx=10, pady=10)
-        self.frame.pack(side="top", fill="x", pady=10, padx=10)
+        ctk.CTkLabel(self.buttonFrame, text="Склад", font=("Helvetica", 30)).pack(side="left", padx=10, pady=10)
+        self.buttonFrame.pack(side="top", fill="x", pady=10, padx=10)
 
-        self.buttonE = ctk.CTkButton(self.frame, text="Выйти", font=("Helvetica", 30), command=window.destroy)
-        self.buttonE.pack(side="right", padx=10, pady=10)
-        self.buttonS = ctk.CTkButton(self.frame, text="Создать", font=("Helvetica", 30), command=self.create_reference_window)
-        self.buttonS.pack(side="left", padx=10, pady=10)
-        self.entry_field = ctk.CTkEntry(self.frame, font=("Helvetica", 25), width=200)
-        self.entry_field.pack(side="left", padx=10, pady=10)
-        self.buttonR = ctk.CTkButton(self.frame, text="Найти", font=("Helvetica", 30), command=self.search_records)
-        self.buttonR.pack(side="left", padx=10, pady=10)
-        self.buttonC = ctk.CTkButton(self.frame, text="Очистить", font=("Helvetica", 30), command=self.clear_entry)
-        self.buttonC.pack(side="left", padx=10, pady=10)
-        self.new_frame = ctk.CTkFrame(window)
-        self.new_frame.pack(side="top", fill="both", expand=True, pady=10, padx=10)
+        self.buttonCreateDoc = ctk.CTkButton(self.buttonFrame, text="Создать документ", font=("Helvetica", 30))
+        self.buttonCreateDoc.pack(side="left", padx=10, pady=10)
+        self.buttonSearch = ctk.CTkButton(self.buttonFrame, text="Найти", font=("Helvetica", 30))
+        self.buttonSearch.pack(side="left", padx=10, pady=10)
+        self.searchEntry = ctk.CTkEntry(self.buttonFrame, font=("Helvetica", 25), width=200)
+        self.searchEntry.pack(side="left", padx=10, pady=10)
+        self.buttonClear = ctk.CTkButton(self.buttonFrame, text="Очистить", font=("Helvetica", 30))
+        self.buttonClear.pack(side="left", padx=10, pady=10)
+        self.buttonRemove = ctk.CTkButton(self.buttonFrame, text="Удалить", font=("Helvetica", 30))
+        self.buttonRemove.pack(side="left", padx=10, pady=10)
+        self.buttonBack = CTkButton(self.buttonFrame, text="Назад", font=("Helvetica", 30), command=self._onButtonExit)
+        self.buttonBack.pack(side="left", padx=10, pady=10)
+
+        self.tableFrame = ctk.CTkFrame(window)
+        self.tableFrame.pack(side="top", fill="both", expand=True, pady=10, padx=10)
         self.create_table()
+
+    def _onButtonExit(self):
+        window = self._window
+        self.clear()
+        window.returnToPrevious()
 
     def create_reference_window(self):
         reference_window = ctk.CTk()
@@ -81,21 +88,13 @@ class StorageWindowContext(Context):
                     self.tree.insert("", "end", values=record)
 
     def create_table(self):
-        self.tree = Treeview(self.new_frame, columns=( "Number", "Name", "Description", "Price", "Creation Date", "Modification Date"))
-        self.tree.heading("Number", text="Номер")
-        self.tree.heading("Name", text="Наименование")
-        self.tree.heading("Description", text="Описание")
-        self.tree.heading("Price", text="Цена")
-        self.tree.heading("Creation Date", text="Дата Создания")
-        self.tree.heading("Modification Date", text="Дата Изменения")
+        self.tree = ttk.Treeview(self.tableFrame, columns=list(Constants.PARISH_DOCUMENT_WINDOW_TREE_OPTIONS.keys()))
+        for header, option in Constants.PARISH_DOCUMENT_WINDOW_TREE_OPTIONS.items():
+            self.tree.heading(header, text=option["text"])
+            self.tree.column(header, width=option["size"])
         self.tree.column("#0", width=0, stretch=False)
-        self.tree.column("Number", width=100)
-        self.tree.column("Name", width=150)
-        self.tree.column("Description", width=150)
-        self.tree.column("Price", width=100)
-        self.tree.column("Creation Date", width=150)
-        self.tree.column("Modification Date", width=150)
-        self.tree_scroll = Scrollbar(self.new_frame, orient="vertical", command=self.tree.yview)
+
+        self.tree_scroll = ttk.Scrollbar(self.tableFrame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.tree_scroll.set)
         self.tree_scroll.pack(side="right", fill="y")
         self.tree.pack(side="left", fill="both", expand=True)

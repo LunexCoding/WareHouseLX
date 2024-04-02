@@ -86,8 +86,8 @@ class _ReferenceBook:
         return self._rowList
 
 
-g_usersBook = _ReferenceBook(DatabaseTables.USERS)
-# g_incomingDocumentsBook = _ReferenceBook(DatabaseTables.INCOMING_DOCUMENTS)
+# g_usersBook = _ReferenceBook(DatabaseTables.USERS)
+g_incomingDocumentsBook = _ReferenceBook(DatabaseTables.INCOMING_DOCUMENTS)
 # g_incomingDocumentDetailsBook = _ReferenceBook(DatabaseTables.INCOMING_DOCUMENT_DETAILS)
 # g_warehouseBook = _ReferenceBook(DatabaseTables.WAREHOUSE)
 # g_outgoingDocuments = _ReferenceBook(DatabaseTables.OUTGOING_DOCUMENTS)

@@ -1,6 +1,6 @@
 from customtkinter import CTkLabel, CTkButton
 
-from .context import Context
+from ui.contexts.context import Context
 
 
 class ReferenceWindow(Context):

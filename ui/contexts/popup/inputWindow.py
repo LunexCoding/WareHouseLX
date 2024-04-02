@@ -1,6 +1,6 @@
 from customtkinter import CTkLabel, CTkEntry
 
-from .context import Context
+from ui.contexts.context import Context
 
 
 class InputWindowContext(Context):
