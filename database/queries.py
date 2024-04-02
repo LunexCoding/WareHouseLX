@@ -35,15 +35,28 @@ class SqlQueries:
         if requestData == "*":
             return SqlQueries._selectAllFromTable(tableName, limit, offset)
         if (requestData is not None) and (requestData != "*"):
-            return SqlQueries._selectFromTableByWhere(tableName, requestData, limit, offset)
+            if requestData.get("condition", None) is None:
+                return SqlQueries._selectFromTableByWhere(tableName, requestData, args, limit, offset)
+            return SqlQueries._selectFromTableByCondition(tableName, requestData, limit, offset)
         return SqlQueries._selectFromTableByParams(tableName, args, limit, offset)
 
-    @staticmethod
     def _selectFromTableByParams(tableName, args, limit, offset):
-        print("call")
         query = f"""
            SELECT {', '.join([char for char in args])}
            FROM {tableName}
+           """
+        if limit is not None:
+            query += f"\nLIMIT {limit}"
+        if offset is not None:
+            query += f"\nOFFSET {offset}"
+        return query
+
+    @staticmethod
+    def _selectFromTableByWhere(tableName, requestData, args, limit, offset):
+        query = f"""
+           SELECT {', '.join([char for char in args])}
+           FROM {tableName}
+           WHERE {' AND '.join([f'{key}="{value}"' for (key, value) in requestData.items()])}
            """
         if limit is not None:
             query += f"\nLIMIT {limit}"
@@ -63,8 +76,8 @@ class SqlQueries:
         return query
 
     @staticmethod
-    def _selectFromTableByWhere(tableName, requestData, limit, offset):
-        conditions = requestData["condition"]
+    def _selectFromTableByCondition(tableName, requestData, limit, offset):
+        conditions = requestData.get("condition", None)
         tableColumns = requestData.get("tableColumns", None)
         if tableColumns is not None:
             columns = []
@@ -94,8 +107,8 @@ class SqlQueries:
                 query += " WHERE "
                 for i, column in enumerate(columns):
                     query += f"{column} {' '.join(data[i].split())}"
-                    if i < len(columns) - 1:  # Проверяем, не последний ли это элемент
-                        query += " AND "  # Добавляем оператор AND после каждого условия, кроме последнего
+                    if i < len(columns) - 1:
+                        query += " AND "
             else:
                 query += f" WHERE {' '.join(data)}"
         else:
