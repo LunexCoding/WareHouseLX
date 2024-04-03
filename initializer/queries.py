@@ -22,7 +22,7 @@ class SqlQueries:
     createTableIncomingDocuments = f"""
         CREATE TABLE IF NOT EXISTS {DatabaseTables.INCOMING_DOCUMENTS} (
             ID INTEGER PRIMARY KEY,
-            Counterparty VARCHAR(255),
+            Counterparty VARCHAR(255) UNIQUE,
             ContractNumber INTEGER,
             Phone VARCHAR(11),
             CreationDate DATE,
@@ -33,19 +33,23 @@ class SqlQueries:
         CREATE TABLE IF NOT EXISTS {DatabaseTables.INCOMING_DOCUMENT_DETAILS} (
             ID INTEGER PRIMARY KEY,
             DocumentNumber INTEGER,
+            CargoID INTEGER,
             CargoName TEXT,
             CargoDescription TEXT,
             PackagingType TEXT,
             Quantity INTEGER,
             Price REAL,
             CreationDate DATE,
-            FOREIGN KEY (DocumentNumber) REFERENCES {DatabaseTables.INCOMING_DOCUMENTS}(ID)
+            FOREIGN KEY (DocumentNumber) REFERENCES {DatabaseTables.INCOMING_DOCUMENTS}(ID),
+            CONSTRAINT unique_document_cargo UNIQUE (DocumentNumber, CargoID),
+            UNIQUE(DocumentNumber, CargoName)
         );
     """
     createTableWarehouse = f"""
         CREATE TABLE IF NOT EXISTS {DatabaseTables.WAREHOUSE} (
             ID INTEGER PRIMARY KEY,
             DocumentID INTEGER,
+            CargoID INTEGER,
             DateOfChange DATE
         );
     """
@@ -63,10 +67,10 @@ class SqlQueries:
         CREATE TABLE IF NOT EXISTS {DatabaseTables.OUTGOING_DOCUMENTS_DETAILS} (
             ID INTEGER PRIMARY KEY,
             DocumentID INTEGER,
+            CargoID INTEGER,
             DepartureDate DATE,
             HoursOnWarehouse INTEGER
         );
-
     """
     createTableWarehouseOutgoingDetails = f"""
         CREATE TABLE IF NOT EXISTS {DatabaseTables.WAREHOUSE_OUTGOING_DETAILS} (
@@ -85,5 +89,23 @@ class SqlQueries:
             UPDATE {DatabaseTables.USERS}
             SET RoleID = (SELECT ID FROM {DatabaseTables.ROLES} WHERE Name = 'User')
             WHERE ID = OLD.ID;
+        END;
+    """
+    createTriggerIncrementDocumentNumber = f"""
+        CREATE TRIGGER IF NOT EXISTS increment_document_number
+        AFTER INSERT ON {DatabaseTables.INCOMING_DOCUMENTS}
+        BEGIN
+            UPDATE {DatabaseTables.INCOMING_DOCUMENTS}
+            SET ContractNumber = (SELECT IFNULL(MAX(ContractNumber), 0) + 1 FROM {DatabaseTables.INCOMING_DOCUMENTS} WHERE Counterparty = NEW.Counterparty)
+            WHERE ID = NEW.ID;
+        END;
+    """
+    createTriggerIncrementCargoID = f"""
+        CREATE TRIGGER IF NOT EXISTS increment_cargo_id
+        AFTER INSERT ON {DatabaseTables.INCOMING_DOCUMENT_DETAILS}
+        BEGIN
+            UPDATE {DatabaseTables.INCOMING_DOCUMENT_DETAILS}
+            SET CargoID = (SELECT IFNULL(MAX(CargoID), 0) + 1 FROM {DatabaseTables.INCOMING_DOCUMENT_DETAILS} WHERE DocumentNumber = NEW.DocumentNumber)
+            WHERE ID = NEW.ID;
         END;
     """

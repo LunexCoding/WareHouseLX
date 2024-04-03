@@ -22,9 +22,9 @@ class SqlQueries:
 
     # INSERT A ROW INTO THE REQUIRED TABLE #
     @staticmethod
-    def insertIntoTable(tableName,args):
+    def insertIntoTable(tableName, args):
         return f"""
-        INSERT INTO {tableName}
+        INSERT OR IGNORE INTO {tableName}
         ({', '.join([char for char in args])})
         VALUES ({', '.join(["?" for char in args])})
         """
