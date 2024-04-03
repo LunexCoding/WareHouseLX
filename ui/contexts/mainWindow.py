@@ -8,21 +8,22 @@ from settingsConfig import g_settingsConfig
 from .context import Context
 from .subContext import SubContext
 from .incomingDocuments import IncomingDocumentsWindowContext
+from .consts import Constants
 
 
 class MainWindowContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
         self.userRoleFrame = CTkFrame(window)
-        self.userRoleLabel = CTkLabel(self.userRoleFrame, text=g_settingsConfig.role, font=("Helvetica", 30))
+        self.userRoleLabel = CTkLabel(self.userRoleFrame, text=g_settingsConfig.role, font=Constants.FONT)
         self.userRoleFrame.grid(row=0, column=0, padx=10, pady=10)
         self.userRoleLabel.pack(padx=10, pady=10)
 
         self.buttonFrame = CTkFrame(window)
-        self.buttonStorage = CTkButton(self.buttonFrame, text="Склад", font=("Helvetica", 30), command=self._onButtonStorage)
-        self.buttonParish = CTkButton(self.buttonFrame, text="Приход", font=("Helvetica", 30), command=self._onButtonParish)
-        self.buttonExpense = CTkButton(self.buttonFrame, text="Расход", font=("Helvetica", 30), command=self._onButtonExpense)
-        self.buttonService = CTkButton(self.buttonFrame, text="Сервис", font=("Helvetica", 30), command=self._onButtonService)
+        self.buttonStorage = CTkButton(self.buttonFrame, text="Склад", font=Constants.FONT, command=self._onButtonStorage)
+        self.buttonParish = CTkButton(self.buttonFrame, text="Приход", font=Constants.FONT, command=self._onButtonParish)
+        self.buttonExpense = CTkButton(self.buttonFrame, text="Расход", font=Constants.FONT, command=self._onButtonExpense)
+        self.buttonService = CTkButton(self.buttonFrame, text="Сервис", font=Constants.FONT, command=self._onButtonService)
         self.buttonFrame.grid(row=0, column=1, padx=10, pady=10)
         self.buttonStorage.grid(row=0, column=0, padx=10, pady=10)
         self.buttonParish.grid(row=0, column=1, padx=10, pady=10)
@@ -30,7 +31,7 @@ class MainWindowContext(Context):
         self.buttonService.grid(row=0, column=3, padx=10, pady=10)
 
         self.exitFrame = CTkFrame(window)
-        self.buttonExit = CTkButton(self.exitFrame, text="Выйти", font=("Helvetica", 30), command=self._onButtonExit)
+        self.buttonExit = CTkButton(self.exitFrame, text="Выйти", font=Constants.FONT, command=self._onButtonExit)
         self.exitFrame.grid(row=0, column=2, padx=10, pady=10)
         self.buttonExit.pack(padx=10, pady=10)
 

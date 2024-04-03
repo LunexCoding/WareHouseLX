@@ -23,9 +23,9 @@ class BaseWindow(CTk):
 
     def openTopLevel(self, contextClass, data=None):
         if self.topLevelWindow is None or not self.checkTopLevelWindow():
-            self.topLevelWindow = PopupWindow(contextClass, data)  # create window if its None or destroyed
+            self.topLevelWindow = PopupWindow(self, contextClass, data)
         else:
-            self.topLevelWindow.focus()  # if window exists focus it
+            self.topLevelWindow.focus()
 
     def checkTopLevelWindow(self):
         return self.topLevelWindow.winfo_exists()
@@ -39,8 +39,8 @@ class MainWindow(BaseWindow):
 
 
 class PopupWindow(CTkToplevel):
-    def __init__(self, contextClass, data=None):
-        super().__init__()
+    def __init__(self, root, contextClass, data=None):
+        super().__init__(root)
 
         self.context = contextClass(self, data)
 

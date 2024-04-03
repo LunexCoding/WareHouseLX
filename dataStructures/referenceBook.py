@@ -38,9 +38,13 @@ class _ReferenceBook:
         self._insertRowToDB(row)
 
     def _insertRowToDB(self, row):
+        columns = []
+        for column in row.keys():
+            if column in self._columns:
+                columns.append(column)
         with databaseSession as db:
             db.execute(
-                SqlQueries.insertIntoTable(self._table, self._columns[1:]),
+                SqlQueries.insertIntoTable(self._table, columns),
                 data=list(row.values())
             )
 
