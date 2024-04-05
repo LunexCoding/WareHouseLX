@@ -1,5 +1,6 @@
 from initializer.initializer import Initializer
 from ui.windows import MainWindow
+from dataStructures.referenceBook import g_incomingDocumentsBook
 
 
 class App:
@@ -8,23 +9,10 @@ class App:
 
         self._window = None
 
-    def run(self):
+        g_incomingDocumentsBook.init()
 
+    def run(self):
         self._window = MainWindow()
         self._window.mainloop()
 
-        # g_incomingDocumentsBook.addRow(
-        #     {
-        #         "Counterparty": "Котн 1"
-        #     }
-        # )
-        # g_incomingDocumentsBook.addRow(
-        #     {
-        #         "Counterparty": "Котн 1"
-        #     }
-        # )
-        # g_incomingDocumentsBook.addRow(
-        #     {
-        #         "Counterparty": "Котн 2"
-        #     }
-        # )
+

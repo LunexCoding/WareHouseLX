@@ -4,13 +4,17 @@ from database.queries import SqlQueries
 from settingsConfig import g_settingsConfig
 
 
+# сокет
 class _ReferenceBook:
     def __init__(self, table):
         self._table = table
-        self._columns = self._getTableColumns()
+        self._columns = None
         self._rowList = []
         self._loadedRecordsCount = 0
         self._sampleLimit = g_settingsConfig.sampleLimit
+
+    def init(self):
+        self._columns = self._getTableColumns()
 
     def _getTableColumns(self):
         with databaseSession as db:

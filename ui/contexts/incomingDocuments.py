@@ -60,7 +60,7 @@ class IncomingDocumentsWindowContext(Context):
     def _saveDocument(self, data):
         print(data)
         self._window.topLevelWindow.close()
-        # self.tree.insert("", "end", values=data)
+        self.tree.insert("", "end", values=list(data.values()))
         # self.referenceList.append(data)
 
     def search_records(self):
@@ -76,9 +76,7 @@ class IncomingDocumentsWindowContext(Context):
                     self.tree.insert("", "end", values=record)
 
     def _loadRows(self):
-        print("call")
         g_incomingDocumentsBook.loadRows()
-        print(g_incomingDocumentsBook.rows)
         for row in g_incomingDocumentsBook.rows:
             self.referenceList.append(row)
             self.tree.insert("", "end", values=list(row.values()))
@@ -87,7 +85,7 @@ class IncomingDocumentsWindowContext(Context):
         self.tree = Treeview(self.tableFrame, columns=list(Constants.INCOMING_AND_OUTGOING_WINDOWS_TREE_OPTIONS.keys()))
         for header, option in Constants.INCOMING_AND_OUTGOING_WINDOWS_TREE_OPTIONS.items():
             self.tree.heading(header, text=option["text"])
-            self.tree.column(header, width=option["size"])
+            self.tree.column(header, width=option["size"], anchor="center")
         self.tree.column("#0", width=0, stretch=False)
 
         self.tree_scroll = Scrollbar(self.tableFrame, orient="vertical", command=self.tree.yview)
