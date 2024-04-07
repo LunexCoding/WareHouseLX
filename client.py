@@ -1,39 +1,54 @@
+import asyncio
 import socket
+from concurrent.futures import ThreadPoolExecutor
 
 
-def main():
-    # Хост и порт сервера
+# Функция для отправки команды с использованием синхронного сокета
+def sendCommandSync(clientSocket, command):
+    clientSocket.send(command.encode())
+
+
+# Функция для приема ответа с использованием синхронного сокета
+def receiveResponseSync(clientSocket):
+    return clientSocket.recv(1024)
+
+
+async def main():
     host = "localhost"
     port = 9999
-
-    # Создание сокета
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientSocket.connect((host, port))
 
     try:
-        # Подключение к серверу
-        client_socket.connect((host, port))
-        print(f"Server response: {client_socket.recv(1024).decode()}")
+        commands = [
+            "add",
+            "add 1",
+            "add 1 2",
+            "add -f",
+            "add -f 1",
+            "add -f 1 -s",
+            "add -f 1 -s 2"
+        ]
 
-        while True:
-            # Ввод команды с клавиатуры
-            command = input("Enter a command: ")
+        # Создаем пул потоков для выполнения операций в другом потоке
+        with ThreadPoolExecutor() as executor:
+            loop = asyncio.get_event_loop()
 
-            # Отправка команды серверу
-            client_socket.send(command.encode())
+            # Отправляем каждую команду по очереди
+            for command in commands:
+                # Отправляем команду
+                await loop.run_in_executor(executor, sendCommandSync, clientSocket, command)
 
-            # Получение ответа от сервера
-            data = client_socket.recv(1024)
-            print("Server response:", data.decode())
+                # Получаем ответ
+                response = await loop.run_in_executor(executor, receiveResponseSync, clientSocket)
+                print("Server response:", response.decode())
 
-            # Проверка на выход
-            if command.lower() == "quit":
-                break
     except Exception as e:
         print("Error:", e)
     finally:
-        # Закрытие сокета
-        client_socket.close()
+        # Закрываем сокет после завершения
+        clientSocket.close()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
