@@ -7,7 +7,9 @@ from commands.commands import commands
 from consts import Constants
 from tools.customExcepions import MissingCommandArgumentException
 
+
 _log = logger.getLogger(__name__)
+
 
 class Server:
     def __init__(self):
@@ -20,7 +22,6 @@ class Server:
 
     def handleClient(self, clientSocket, addr):
         _log.debug(f"Connection from {addr}")
-        clientSocket.send(Constants.WELCOME_MESSAGE.encode())
 
         while self._running:
             try:
@@ -28,6 +29,7 @@ class Server:
                 if not data:
                     _log.debug("Empty data received, closing connection")
                     break
+                _log.debug(f"Received input: {data.decode()}")
 
                 commandString = data.decode().strip().split()
                 command = commandString.pop(0)
@@ -49,8 +51,10 @@ class Server:
                 if data is not None:
                     if not isinstance(data, (dict, list)):
                         clientSocket.send(str(data).encode())
+                        _log.debug(f"Responce: {str(data)}")
                     else:
                         clientSocket.send(JsonTools.serialize(data).encode())
+                        _log.debug(f"Responce: {JsonTools.serialize(data)}")
             except MissingCommandArgumentException as e:
                 _log.debug(e)
                 clientSocket.send(str(e).encode())
