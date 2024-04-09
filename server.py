@@ -1,6 +1,5 @@
 import socket
 import threading
-from settingsConfig import g_settingsConfig
 from tools.logger import logger
 from tools.jsonTools import JsonTools
 from commands.commands import commands
@@ -19,6 +18,7 @@ class Server:
         self._serverSocket.bind((self._host, self._port))
         self._clients = []
         self._running = True
+        self._lock = threading.Lock()  # Lock для безопасности доступа к списку клиентов
 
     def handleClient(self, clientSocket, addr):
         _log.debug(f"Connection from {addr}")
@@ -40,6 +40,8 @@ class Server:
                 _log.error(f"Error handling client command: {e}")
                 break
 
+        with self._lock:
+            self._clients.remove((clientSocket, addr))
         clientSocket.close()
 
     def handleUserInput(self, clientSocket, command, argsCommand):
@@ -51,10 +53,10 @@ class Server:
                 if data is not None:
                     if not isinstance(data, (dict, list)):
                         clientSocket.send(str(data).encode())
-                        _log.debug(f"Responce: {str(data)}")
+                        _log.debug(f"Response: {str(data)}")
                     else:
                         clientSocket.send(JsonTools.serialize(data).encode())
-                        _log.debug(f"Responce: {JsonTools.serialize(data)}")
+                        _log.debug(f"Response: {JsonTools.serialize(data)}")
             except MissingCommandArgumentException as e:
                 _log.debug(e)
                 clientSocket.send(str(e).encode())
@@ -67,9 +69,10 @@ class Server:
         while self._running:
             try:
                 clientSocket, addr = self._serverSocket.accept()
+                with self._lock:
+                    self._clients.append((clientSocket, addr))
                 clientThread = threading.Thread(target=self.handleClient, args=(clientSocket, addr))
                 clientThread.start()
-                self._clients.append((clientSocket, addr))
             except OSError as e:
                 if self._running:
                     _log.error(f"Error accepting client: {e}")
