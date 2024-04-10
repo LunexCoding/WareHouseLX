@@ -1,7 +1,4 @@
-from .consts import Constants
-from .processСonditions import ProcessConditions
-from dataStructures.referenceBook import g_referenceBooks
-from tools.customExcepions import MissingCommandArgumentException, InvalidCommandFlagException
+from .customExcepions import InvalidCommandFlagException, MissingCommandArgumentException
 
 
 class FlagsType:
@@ -17,7 +14,7 @@ class ValueType:
     FLOAT = 3
 
 
-class Command:
+class BaseCommand:
     COMMAND_NAME = None
 
     def __init__(self):
@@ -78,51 +75,3 @@ class Command:
         missingFlags = [flag for flag in self._allowedFlags if args.get(flag) is None]
         if missingFlags:
             raise MissingCommandArgumentException(self.__class__.COMMAND_NAME, missingFlags)
-
-
-class Help(Command):
-    COMMAND_NAME = "help"
-
-    def __init__(self):
-        super().__init__()
-        self.msgHelp = Constants.HELP_MSG
-        self._allowedFlags = None
-        self._argsWithoutFlagsOrder = None
-
-    def execute(self, commandName=None):
-        if commandName is None:
-            return self.msgHelp % "\n".join([f"\t{index}. {command}" for index, command in enumerate(commands, start=1)])
-        if commandName in commands:
-            return commands[commandName]().getHelpMsg()
-
-
-class SearchRows(Command):
-    COMMAND_NAME = "search"
-
-    def __init__(self):
-        super().__init__()
-        self.msgHelp = None
-        self._allowedFlags = {
-            "-t": ValueType.STRING,
-            "-c": ValueType.STRING
-        }
-        self._argsWithoutFlagsOrder = ["-t", "-c"]
-
-    def execute(self, commandArgs):
-        args = self._getArgs(commandArgs)
-        self._checkFlags(args)
-
-        table = args["-t"]
-        referenceBook = [book for book in g_referenceBooks if book.table == table][0]
-        conditionString = args["-c"]
-
-        conditions = ProcessConditions.process(conditionString.split("|"), referenceBook.columns)
-        if len(conditions) == 1:
-            conditions = "".join(conditions)
-        return referenceBook.searchRowByParams(conditions)
-
-
-commands = {
-    Help.COMMAND_NAME: Help,
-    SearchRows.COMMAND_NAME: SearchRows
-}
