@@ -1,4 +1,6 @@
 from .consts import Constants
+from .processСonditions import ProcessConditions
+from dataStructures.referenceBook import g_referenceBooks
 from tools.customExcepions import MissingCommandArgumentException, InvalidCommandFlagException
 
 
@@ -35,25 +37,28 @@ class Command:
         last = None
         flags = iter(self._argsWithoutFlagsOrder)
         for arg in args:
-            if last is None:
-                if arg in self._allowedFlags:
-                    commandArgs[arg] = None
-                    if self._allowedFlags[arg] != ValueType.NONE:
-                        last = arg
+            try:
+                if last is None:
+                    if arg in self._allowedFlags:
+                        commandArgs[arg] = None
+                        if self._allowedFlags[arg] != ValueType.NONE:
+                            last = arg
+                    else:
+                        if "-" in arg:
+                            commandArgs[arg] = None
+                            last = arg
+                        else:
+                            last = next(flags)
+                            commandArgs[last] = self._convertValue(last, arg)
+                            last = None
                 else:
                     if "-" in arg:
                         commandArgs[arg] = None
-                        last = arg
                     else:
-                        last = next(flags)
                         commandArgs[last] = self._convertValue(last, arg)
                         last = None
-            else:
-                if "-" in arg:
-                    commandArgs[arg] = None
-                else:
-                    commandArgs[last] = self._convertValue(last, arg)
-                    last = None
+            except StopIteration:
+                break
         return commandArgs
 
     def _convertValue(self, flag, arg):
@@ -91,29 +96,33 @@ class Help(Command):
             return commands[commandName]().getHelpMsg()
 
 
-class Addition(Command):
-    COMMAND_NAME = "add"
+class SearchRows(Command):
+    COMMAND_NAME = "search"
 
     def __init__(self):
         super().__init__()
-        self.msgHelp = Constants.ADDITION_HELP_MSG
+        self.msgHelp = None
         self._allowedFlags = {
-            "-f": ValueType.FLOAT,
-            "-s": ValueType.FLOAT
+            "-t": ValueType.STRING,
+            "-c": ValueType.STRING
         }
-        self._argsWithoutFlagsOrder = ["-f", "-s"]
+        self._argsWithoutFlagsOrder = ["-t", "-c"]
 
     def execute(self, commandArgs):
         args = self._getArgs(commandArgs)
-
         self._checkFlags(args)
 
-        first = args["-f"]
-        second = args["-s"]
-        return first + second
+        table = args["-t"]
+        referenceBook = [book for book in g_referenceBooks if book.table == table][0]
+        conditionString = args["-c"]
+
+        conditions = ProcessConditions.process(conditionString.split("|"), referenceBook.columns)
+        if len(conditions) == 1:
+            conditions = "".join(conditions)
+        return referenceBook.searchRowByParams(conditions)
 
 
 commands = {
     Help.COMMAND_NAME: Help,
-    Addition.COMMAND_NAME: Addition
+    SearchRows.COMMAND_NAME: SearchRows
 }

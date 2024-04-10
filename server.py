@@ -7,6 +7,7 @@ from serverConsts import Constants
 from tools.jsonTools import JsonTools
 from tools.customExcepions import MissingCommandArgumentException, InvalidCommandFlagException
 from commands.commands import commands
+from dataStructures.referenceBook import g_referenceBooks
 
 
 _log = logger.getLogger(__name__)
@@ -102,6 +103,10 @@ class Server:
 
 async def main():
     server = Server()
+
+    for book in g_referenceBooks:
+        book.init()
+
     accept_clients_task = asyncio.create_task(server.acceptClients())
 
     while True:

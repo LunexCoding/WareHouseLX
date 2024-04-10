@@ -2,6 +2,7 @@ import asyncio
 import socket
 
 from clientConsts import Constants
+from database.tables import DatabaseTables
 
 
 class CommandClient:
@@ -64,28 +65,14 @@ async def main():
     client = CommandClient('localhost', 9999)
 
     commands = [
-        "ff -g 1",
-        "help",
-        "add",
-        "add -f",
-        "add -s",
-        "add -f 1",
-        "add -s 2",
-        "add 1",
-        "add 2",
-        "add -f 1 -s",
-        "add -s 2 -f",
-        "add -f -s",
-        "add -f 1 -s 2",
-        "add 1 2",
-        "add -g 1",
-        "add -g 1 -h"
+        f"search {DatabaseTables.USERS} RoleID=2",
+        f"search {DatabaseTables.USERS} RoleID=2|ID<3"
     ]
     responses = await client.sendCommandsAndReceiveResponses(commands)
     for index, response in enumerate(responses, start=1):
         print(f"{index} | {response}")
 
-    response = await client.sendCommandAndReceiveResponse("add 1 2")
+    response = await client.sendCommandAndReceiveResponse(f"search {DatabaseTables.USERS} RoleID=2|ID<3")
     print(response)
 
 

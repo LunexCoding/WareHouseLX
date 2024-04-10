@@ -11,6 +11,11 @@ class _SettingsConfig:
             host=config("SERVER_HOST"),
             port=config("SERVER_PORT", cast=int)
         )
+        __settings["DATABASE"] = dict(
+            database=config("DB_NAME"),
+            databaseDirectory=config("DB_DIRECTORY"),
+            sampleLimit=config("DB_LIMIT")
+        )
         __settings["LOG"] = dict(
             file=config("LOG_FILE"),
             directory=config("LOG_DIRECTORY")
@@ -20,6 +25,10 @@ class _SettingsConfig:
     @property
     def ServerSettings(self):
         return self.__settingsConfigDB["SERVER"]
+
+    @property
+    def DatabaseSettings(self):
+        return self.__settingsConfigDB["DATABASE"]
 
     @property
     def LogSettings(self):
