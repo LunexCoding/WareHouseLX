@@ -1,10 +1,12 @@
+import asyncio
 import socket
-import threading
+import sys
+
 from tools.logger import logger
+from serverConsts import Constants
 from tools.jsonTools import JsonTools
+from tools.customExcepions import MissingCommandArgumentException, InvalidCommandFlagException
 from commands.commands import commands
-from consts import Constants
-from tools.customExcepions import MissingCommandArgumentException
 
 
 _log = logger.getLogger(__name__)
@@ -12,52 +14,53 @@ _log = logger.getLogger(__name__)
 
 class Server:
     def __init__(self):
-        self._host = "localhost"
-        self._port = 9999
-        self._serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._serverSocket.bind((self._host, self._port))
-        self._clients = []
-        self._running = True
-        self._lock = threading.Lock()  # Lock для безопасности доступа к списку клиентов
+        self.host = "localhost"
+        self.port = 9999
+        self.running = True
+        self.clients = []
 
-    def handleClient(self, clientSocket, addr):
+    async def handleClient(self, clientSocket, addr):
+        self.clients.append((clientSocket, addr))
         _log.debug(f"Connection from {addr}")
 
-        while self._running:
+        while self.running:
             try:
-                data = clientSocket.recv(1024)
+                data = await asyncio.get_event_loop().sock_recv(clientSocket, 1024)
+                _log.debug(f"Received: {data.decode()}")
                 if not data:
                     _log.debug("Empty data received, closing connection")
                     break
-                _log.debug(f"Received input: {data.decode()}")
 
                 commandString = data.decode().strip().split()
                 command = commandString.pop(0)
                 argsCommand = " ".join(commandString)
-                self.handleUserInput(clientSocket, command, argsCommand)
 
-            except Exception as e:
-                _log.error(f"Error handling client command: {e}")
+                asyncio.create_task(self.processCommand(clientSocket, command, argsCommand))
+
+            except asyncio.TimeoutError:
+                _log.error("Timeout occurred while receiving data")
                 break
 
-        with self._lock:
-            self._clients.remove((clientSocket, addr))
         clientSocket.close()
+        self.clients.remove((clientSocket, addr))
 
-    def handleUserInput(self, clientSocket, command, argsCommand):
+    async def processCommand(self, clientSocket, command, argsCommand):
         if command == "help" and len(argsCommand) == 0:
             argsCommand = None
         if command in commands:
             try:
-                data = commands[command]().execute(argsCommand)
-                if data is not None:
-                    if not isinstance(data, (dict, list)):
-                        clientSocket.send(str(data).encode())
-                        _log.debug(f"Response: {str(data)}")
+                result = commands[command]().execute(argsCommand)
+                if result is not None:
+                    if not isinstance(result, (dict, list)):
+                        clientSocket.send(str(result).encode())
+                        _log.debug(f"Response: {str(result)}")
                     else:
-                        clientSocket.send(JsonTools.serialize(data).encode())
-                        _log.debug(f"Response: {JsonTools.serialize(data)}")
+                        clientSocket.send(JsonTools.serialize(result).encode())
+                        _log.debug(f"Response: {JsonTools.serialize(result)}")
             except MissingCommandArgumentException as e:
+                _log.debug(e)
+                clientSocket.send(str(e).encode())
+            except InvalidCommandFlagException as e:
                 _log.debug(e)
                 clientSocket.send(str(e).encode())
         else:
@@ -65,36 +68,50 @@ class Server:
             _log.debug(errorMessage)
             clientSocket.send(errorMessage.encode())
 
-    def acceptClients(self):
-        while self._running:
+    async def acceptClients(self):
+        serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serverSocket.bind((self.host, self.port))
+        serverSocket.listen(5)
+        _log.debug(f"Server listening on {self.host}:{self.port}")
+
+        while self.running:
             try:
-                clientSocket, addr = self._serverSocket.accept()
-                with self._lock:
-                    self._clients.append((clientSocket, addr))
-                clientThread = threading.Thread(target=self.handleClient, args=(clientSocket, addr))
-                clientThread.start()
-            except OSError as e:
-                if self._running:
-                    _log.error(f"Error accepting client: {e}")
+                clientSocket, addr = await asyncio.get_event_loop().sock_accept(serverSocket)
+                asyncio.create_task(self.handleClient(clientSocket, addr))
+            except Exception as e:
+                _log.error(f"Error accepting client: {e}")
 
-    def stop(self):
+        _log.debug("Server stopped.")
+
+    async def stop(self):
         _log.debug("Stopping server...")
-        self._running = False
-        self._serverSocket.close()
+        self.running = False
+        await asyncio.sleep(10)
+        _log.debug("Force closing remaining client connections...")
+        for clientSocket, addr in self.clients:
+            try:
+                clientSocket.shutdown(socket.SHUT_RDWR)
+                clientSocket.close()
+            except Exception as e:
+                _log.error(f"Error closing client connection: {e}")
 
-    def run(self):
-        self._serverSocket.listen(5)
-        _log.debug(f"Server listening on {self._host}:{self._port}")
-        acceptThread = threading.Thread(target=self.acceptClients)
-        acceptThread.start()
+        self.clients.clear()
+        _log.debug("Server stopped.")
+        sys.exit()
+
+
+async def main():
+    server = Server()
+    accept_clients_task = asyncio.create_task(server.acceptClients())
+
+    while True:
+        command = await asyncio.get_event_loop().run_in_executor(None, input, "Enter command -> ")
+        if command.lower() == "stop":
+            await server.stop()
+            break
+
+    await accept_clients_task
 
 
 if __name__ == "__main__":
-    server = Server()
-    server.run()
-
-    while True:
-        command = input("Enter command: ")
-        if command.lower() == "stop":
-            server.stop()
-            break
+    asyncio.run(main())

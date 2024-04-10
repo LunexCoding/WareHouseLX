@@ -1,5 +1,5 @@
 from .consts import Constants
-from tools.customExcepions import MissingCommandArgumentException
+from tools.customExcepions import MissingCommandArgumentException, InvalidCommandFlagException
 
 
 class FlagsType:
@@ -41,23 +41,35 @@ class Command:
                     if self._allowedFlags[arg] != ValueType.NONE:
                         last = arg
                 else:
-                    last = next(flags)
+                    if "-" in arg:
+                        commandArgs[arg] = None
+                        last = arg
+                    else:
+                        last = next(flags)
+                        commandArgs[last] = self._convertValue(last, arg)
+                        last = None
+            else:
+                if "-" in arg:
+                    commandArgs[arg] = None
+                else:
                     commandArgs[last] = self._convertValue(last, arg)
                     last = None
-            else:
-                commandArgs[last] = self._convertValue(last, arg)
-                last = None
         return commandArgs
 
     def _convertValue(self, flag, arg):
-        valueType = self._allowedFlags[flag]
-        if valueType == ValueType.INT:
-            return int(arg)
-        if valueType == ValueType.FLOAT:
-            return float(arg)
+        if flag in self._allowedFlags:
+            valueType = self._allowedFlags[flag]
+            if valueType == ValueType.INT:
+                return int(arg)
+            if valueType == ValueType.FLOAT:
+                return float(arg)
+            return arg
         return arg
 
     def _checkFlags(self, args):
+        invalidFlags = [flag for flag in args if flag not in self._allowedFlags]
+        if invalidFlags:
+            raise InvalidCommandFlagException(self.__class__.COMMAND_NAME, invalidFlags)
         missingFlags = [flag for flag in self._allowedFlags if args.get(flag) is None]
         if missingFlags:
             raise MissingCommandArgumentException(self.__class__.COMMAND_NAME, missingFlags)
