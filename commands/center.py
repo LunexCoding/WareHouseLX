@@ -19,11 +19,18 @@ class CommandCenter:
             if isinstance(nextCommand, tuple):
                 command, args = nextCommand
                 if command in self.serviceCommands:
-                    command = self.serviceCommands[command]
+                    command = self.serviceCommands[command]()
                     return command.execute(args)
                 elif command in self.clientCommands:
                     command = self.clientCommands[command]()
                     return command.execute(args)
+            else:
+                if nextCommand == "start":
+                    command = self.serviceCommands[nextCommand]()
+                    return command.execute(self)
+                else:
+                    command = self.serviceCommands[nextCommand]()
+                    return command.execute()
         return False
 
     async def executeAllCommands(self):

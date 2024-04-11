@@ -73,13 +73,14 @@ async def main():
         f"search {DatabaseTables.USERS} RoleID=2|ID<3"
     ]
     responses = await client.sendCommandsAndReceiveResponses(commands)
-    print(responses)
+    print(type(responses))
     for index, response in enumerate(responses, start=1):
-        print(f"{index} | {response}")
+        print(f"{index} | {response} | {type(response)}")
 
     response = await client.sendCommandAndReceiveResponse(f"search {DatabaseTables.USERS} RoleID=2|ID<3")
-    print(response)
+    print(response, type(response))
 
     await asyncio.sleep(1)
+
 
 asyncio.run(main())
