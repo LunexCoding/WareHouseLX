@@ -1,4 +1,8 @@
 from .command import BaseCommand
+from tools.logger import logger
+
+
+_log = logger.getLogger(__name__)
 
 
 class ServiceCommand(BaseCommand):
@@ -7,7 +11,7 @@ class ServiceCommand(BaseCommand):
 
 
 class StartSocket(ServiceCommand):
-    COMMAND_NAME = "stert"
+    COMMAND_NAME = "start"
 
 
 class StopSocket(ServiceCommand):

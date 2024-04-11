@@ -3,6 +3,7 @@ import socket
 
 from clientConsts import Constants
 from database.tables import DatabaseTables
+from tools.jsonTools import JsonTools
 
 
 class CommandClient:
@@ -45,8 +46,8 @@ class CommandClient:
             if any(msg in response for msg in [Constants.UNKNOWN_COMMAND_MSG, Constants.MISSING_COMMAND_ARGUMENT_MSG, Constants.INVALID_COMMAND_FLAG_MSG]):
                 responses.append(None)
             else:
-                responses.append(response)
-
+                if not isinstance(response, list):
+                    responses.append(JsonTools.deserialize(response))
         self.clientSocket.close()
         return responses
 
@@ -56,6 +57,9 @@ class CommandClient:
         response = await self.receiveResponse()
         if any(msg in response for msg in [Constants.UNKNOWN_COMMAND_MSG, Constants.MISSING_COMMAND_ARGUMENT_MSG, Constants.INVALID_COMMAND_FLAG_MSG]):
             return None
+        else:
+            if not isinstance(response, list):
+                response = JsonTools.deserialize(response)
 
         self.clientSocket.close()
         return response
@@ -69,11 +73,13 @@ async def main():
         f"search {DatabaseTables.USERS} RoleID=2|ID<3"
     ]
     responses = await client.sendCommandsAndReceiveResponses(commands)
+    print(responses)
     for index, response in enumerate(responses, start=1):
         print(f"{index} | {response}")
 
     response = await client.sendCommandAndReceiveResponse(f"search {DatabaseTables.USERS} RoleID=2|ID<3")
     print(response)
 
+    await asyncio.sleep(1)
 
 asyncio.run(main())

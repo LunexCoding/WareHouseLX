@@ -1,7 +1,7 @@
 import asyncio
 
-from .client import commands as clientCommands
-from .service import commands as serviceCommands
+from commands.service import commands as serviceCommands
+from commands.client import commands as clientCommands
 
 
 class CommandCenter:
@@ -10,21 +10,25 @@ class CommandCenter:
         self.clientCommands = clientCommands
         self.executionQueue = asyncio.Queue()
 
-    async def addToExecutionQueue(self, *commands):
-        for command in commands:
-            await self.executionQueue.put(command)
+    async def addToExecutionQueue(self, command):
+        await self.executionQueue.put(command)
 
     async def executeNextCommand(self):
         if not self.executionQueue.empty():
-            next_command = await self.executionQueue.get()
-            result = await next_command.execute()
-            return result
+            nextCommand = await self.executionQueue.get()
+            if isinstance(nextCommand, tuple):
+                command, args = nextCommand
+                if command in self.serviceCommands:
+                    command = self.serviceCommands[command]
+                    return command.execute(args)
+                elif command in self.clientCommands:
+                    command = self.clientCommands[command]()
+                    return command.execute(args)
+        return False
 
     async def executeAllCommands(self):
         while not self.executionQueue.empty():
-            result = await self.executeNextCommand()
-            if result is not None:
-                return result
+            return await self.executeNextCommand()
 
 
 g_commandCenter = CommandCenter()
