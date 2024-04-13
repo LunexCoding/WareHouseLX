@@ -1,6 +1,3 @@
-from .customExcepions import InvalidCommandFlagException, MissingCommandArgumentException
-
-
 class FlagsType:
     SINGLE = 0
     WITH_VALUE = 1
@@ -22,7 +19,7 @@ class BaseCommand:
         self._allowedFlags = {}
         self._argsWithoutFlagsOrder = []
 
-    def execute(self, commandArgs):
+    def execute(self, commandArgs=None):
         assert False
 
     def getHelpMsg(self):
@@ -71,7 +68,8 @@ class BaseCommand:
     def _checkFlags(self, args):
         invalidFlags = [flag for flag in args if flag not in self._allowedFlags]
         if invalidFlags:
-            raise InvalidCommandFlagException(self.__class__.COMMAND_NAME, invalidFlags)
+            return False
         missingFlags = [flag for flag in self._allowedFlags if args.get(flag) is None]
         if missingFlags:
-            raise MissingCommandArgumentException(self.__class__.COMMAND_NAME, missingFlags)
+            return False
+        return True

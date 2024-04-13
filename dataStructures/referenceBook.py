@@ -1,22 +1,23 @@
-from database.database import databaseSession
 from database.tables import DatabaseTables
 from database.queries import SqlQueries
+from database.database import DatabaseConnectionFactory
 from settingsConfig import g_settingsConfig
 
 
 class _ReferenceBook:
-    def __init__(self, table):
+    def __init__(self, table, database_factory):
         self._table = table
         self._columns = None
         self._rowList = []
         self._loadedRecordsCount = 0
         self._sampleLimit = g_settingsConfig.DatabaseSettings["sampleLimit"]
+        self.database_factory = database_factory
 
     def init(self):
         self._columns = self._getTableColumns()
 
     def _getTableColumns(self):
-        with databaseSession as db:
+        with self.database_factory.create_connection() as db:
             columns = db.getData(SqlQueries.getTableColumns(self._table), all=True)
         return [column[1] for column in columns]
 
@@ -27,7 +28,7 @@ class _ReferenceBook:
             self._loadedRecordsCount += len(rows)
 
     def _loadRowsFromDB(self):
-        with databaseSession as db:
+        with self.database_factory.create_connection() as db:
             rows = db.getData(
                 SqlQueries.selectFromTable(self._table, requestData="*", limit=self._sampleLimit, offset=self._loadedRecordsCount),
                 all=True
@@ -45,7 +46,7 @@ class _ReferenceBook:
         for column in row.keys():
             if column in self._columns:
                 columns.append(column)
-        with databaseSession as db:
+        with self.database_factory.create_connection() as db:
             db.execute(
                 SqlQueries.insertIntoTable(self._table, columns),
                 data=list(row.values())
@@ -56,7 +57,7 @@ class _ReferenceBook:
 
     def _updateRowIntoDB(self, rowID, data):
         idColumn = self._columns[0]
-        with databaseSession as db:
+        with self.database_factory.create_connection() as db:
             db.execute(
                 SqlQueries.updateTable(self._table, idColumn, rowID, **data),
                 data=list(data.values())
@@ -67,7 +68,7 @@ class _ReferenceBook:
 
     def _deleteRowFromDB(self, rowID):
         idColumn = self._columns[0]
-        with databaseSession as db:
+        with self.database_factory.create_connection() as db:
             db.execute(
                 SqlQueries.deleteFromTable(self._table, idColumn, rowID)
             )
@@ -78,7 +79,7 @@ class _ReferenceBook:
             "tableColumns": self._columns
         }
         SqlQueries.selectFromTable(self._table, requestData)
-        with databaseSession as db:
+        with self.database_factory.create_connection() as db:
             rows = db.getData(
                 SqlQueries.selectFromTable(self._table, requestData, limit, offset),
                 all=True
@@ -101,13 +102,23 @@ class _ReferenceBook:
         return self._rowList
 
 
-g_usersBook = _ReferenceBook(DatabaseTables.USERS)
-g_incomingDocumentsBook = _ReferenceBook(DatabaseTables.INCOMING_DOCUMENTS)
-g_incomingDocumentDetailsBook = _ReferenceBook(DatabaseTables.INCOMING_DOCUMENT_DETAILS)
-g_warehouseBook = _ReferenceBook(DatabaseTables.WAREHOUSE)
-g_outgoingDocuments = _ReferenceBook(DatabaseTables.OUTGOING_DOCUMENTS)
-g_outgoingDocumentDetailsBook = _ReferenceBook(DatabaseTables.OUTGOING_DOCUMENTS_DETAILS)
-g_warehouseOutgoingDetailsBook = _ReferenceBook(DatabaseTables.WAREHOUSE_OUTGOING_DETAILS)
+class ReferenceBookFactory:
+    def __init__(self, database_factory):
+        self.database_factory = database_factory
+
+    def create_reference_book(self, table):
+        return _ReferenceBook(table, self.database_factory)
+
+
+g_referenceBookFactory = ReferenceBookFactory(DatabaseConnectionFactory(g_settingsConfig.DatabaseSettings["fullPath"]))
+
+g_usersBook = g_referenceBookFactory.create_reference_book(DatabaseTables.USERS)
+g_incomingDocumentsBook = g_referenceBookFactory.create_reference_book(DatabaseTables.INCOMING_DOCUMENTS)
+g_incomingDocumentDetailsBook = g_referenceBookFactory.create_reference_book(DatabaseTables.INCOMING_DOCUMENT_DETAILS)
+g_warehouseBook = g_referenceBookFactory.create_reference_book(DatabaseTables.WAREHOUSE)
+g_outgoingDocuments = g_referenceBookFactory.create_reference_book(DatabaseTables.OUTGOING_DOCUMENTS)
+g_outgoingDocumentDetailsBook = g_referenceBookFactory.create_reference_book(DatabaseTables.OUTGOING_DOCUMENTS_DETAILS)
+g_warehouseOutgoingDetailsBook = g_referenceBookFactory.create_reference_book(DatabaseTables.WAREHOUSE_OUTGOING_DETAILS)
 
 g_referenceBooks = [
     g_usersBook,

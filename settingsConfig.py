@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from decouple import config
 
 
@@ -14,6 +16,7 @@ class _SettingsConfig:
         __settings["DATABASE"] = dict(
             database=config("DB_NAME"),
             databaseDirectory=config("DB_DIRECTORY"),
+            fullPath=Path(config("DB_DIRECTORY")) / config("DB_NAME"),
             sampleLimit=config("DB_LIMIT")
         )
         __settings["LOG"] = dict(

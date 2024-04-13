@@ -1,46 +1,51 @@
 import sqlite3
-from pathlib import Path
+import threading
 
 from settingsConfig import g_settingsConfig
 
 
-class DatabaseConnection(object):
-    def __init__(self):
-        self.dbConn = None
-        self.dbCursor = None
-        self.__settings = g_settingsConfig.DatabaseSettings
+class DatabaseConnection:
+    def __init__(self, database_path):
+        self.__database_path = database_path
+        self.__lock = threading.Lock()
 
     def __enter__(self):
-        self.dbConn = sqlite3.connect(Path(self.__settings["databaseDirectory"]) / self.__settings["database"])
-        self.dbCursor = self.dbConn.cursor()
+        self.__dbConn = sqlite3.connect(self.__database_path)
         return self
 
     def __exit__(self, exception_type, exception_val, trace):
         try:
-            self.dbCursor.close()
-            self.dbConn.close()
+            self.__dbConn.close()
         except AttributeError:
-            return True
+            pass
 
     def execute(self, sql, data=None):
-        if data is not None:
-            self.dbCursor.execute(sql, data)
-        else:
-            self.dbCursor.execute(sql)
-        self.dbConn.commit()
+        with self.__lock:
+            cursor = self.__dbConn.cursor()
+            if data is not None:
+                cursor.execute(sql, data)
+            else:
+                cursor.execute(sql)
+            self.__dbConn.commit()
 
     def getData(self, sql, data=None, all=False):
-        if data is not None:
-            self.dbCursor.execute(sql, data)
-        else:
-            self.dbCursor.execute(sql)
-        if all:
-            return self.dbCursor.fetchall()
-        return self.dbCursor.fetchone()
-
-    @property
-    def connection(self):
-        return self.dbConn
+        with self.__lock:
+            cursor = self.__dbConn.cursor()
+            if data is not None:
+                cursor.execute(sql, data)
+            else:
+                cursor.execute(sql)
+            if all:
+                return cursor.fetchall()
+            return cursor.fetchone()
 
 
-databaseSession = DatabaseConnection()
+class DatabaseConnectionFactory:
+    def __init__(self, database_path):
+        self.__database_path = database_path
+
+    def create_connection(self):
+        return DatabaseConnection(self.__database_path)
+
+
+databaseSession = DatabaseConnectionFactory(g_settingsConfig.DatabaseSettings["fullPath"])

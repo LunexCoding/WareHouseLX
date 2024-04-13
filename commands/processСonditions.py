@@ -15,4 +15,5 @@ class ProcessConditions:
                     condition = re.sub(r'\s+', ' ', condition)
                     condition = condition.strip()
             processedConditions.append(condition)
+
         return processedConditions

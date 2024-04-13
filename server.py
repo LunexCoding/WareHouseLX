@@ -1,7 +1,11 @@
-import asyncio
-from tools.logger import logger
+import os
+import sys
+import threading
+
 from commands.center import g_commandCenter
 from connection import Socket
+from tools.logger import logger
+from consts import Constants
 
 
 _log = logger.getLogger(__name__)
@@ -10,38 +14,37 @@ _log = logger.getLogger(__name__)
 class Server:
     def __init__(self):
         self.socket = None
+        self.running = True
 
-    async def start(self):
-        await g_commandCenter.addToExecutionQueue("init")
-        await g_commandCenter.executeNextCommand()
-
-        await g_commandCenter.addToExecutionQueue("start")
-        result = await g_commandCenter.executeAllCommands()
-        if result and isinstance(result, Socket):
-            self.socket = result
+    def start(self):
+        initBooksCommand = g_commandCenter.searchCommand("init")
+        if initBooksCommand is not None:
+            initBooksCommand.execute()
+            self.socket = Socket(g_commandCenter)
+            self.socket.start()
         else:
-            _log.error("Failed to start the server socket.")
+            _log.error(Constants.COMMAND_NOT_FOUND_MSG.format("init"))
 
-        await self.startSocket()
+    def stop(self):
+        self.socket.stop()
+        self.running = False
 
-    async def startSocket(self):
-        self.socket.acceptClientsTask = asyncio.create_task(self.socket.acceptClients())
-        g_commandCenter.executeAllCommandsTask = asyncio.create_task(g_commandCenter.executeAllCommands())
 
-    async def stopSocket(self):
-        print("call stopSocket")
-        if self.socket:
-            await self.socket.stop()
-            await g_commandCenter.addToExecutionQueue(("stop", self.socket))
-            await g_commandCenter.executeNextCommand()  # Выполнить команду "stop"
-            self.socket = None
-
-async def main():
-    server = Server()
-    await server.start()
-    await asyncio.sleep(10)
-    await server.stopSocket()
+def userInputThread(server):
+    while True:
+        user_input = sys.stdin.readline().strip()
+        if user_input == "stop":
+            server.stop()
+            os._exit(0)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    server = Server()
+    server_thread = threading.Thread(target=server.start)
+    server_thread.start()
+
+    input_thread = threading.Thread(target=userInputThread, args=(server,))
+    input_thread.start()
+
+    server_thread.join()
+    input_thread.join()
