@@ -44,19 +44,23 @@ class Socket:
         commandObj = self.commandCenter.searchCommand(commandName)
         if commandObj is not None:
             result = commandObj.execute(argsCommand)
-            if not isinstance(result, (dict, list)):
-                result = [result]
             result = {
                 "Command": command,
                 "Result": result
             }
-            response = JsonTools.serialize(result)
-            clientSocket.send(response.encode())
-            _log.debug(f"Response: {response}")
         else:
-            clientSocket.send(str(None).encode())
             _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(commandName))
-            _log.debug(f"Response: {None}")
+            result = {
+                "Command": command,
+                "Result": None
+            }
+        response = JsonTools.serialize(result)
+        self.sendToClient(clientSocket, response)
+
+    @staticmethod
+    def sendToClient(clientSocket, response):
+        clientSocket.send(response.encode())
+        _log.debug(f"Response: {response}")
 
     def start(self):
         serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

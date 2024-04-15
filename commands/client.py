@@ -50,7 +50,7 @@ class LongRunningCommand(ClientCommand):
         start_time = time.time()
         while time.time() - start_time < 10:
             pass
-        return [True]
+        return True
 
 
 commands = {

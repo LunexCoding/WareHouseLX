@@ -5,12 +5,12 @@ from settingsConfig import g_settingsConfig
 
 
 class DatabaseConnection:
-    def __init__(self, database_path):
-        self.__database_path = database_path
+    def __init__(self, databasePath):
+        self.__databasePath = databasePath
         self.__lock = threading.Lock()
 
     def __enter__(self):
-        self.__dbConn = sqlite3.connect(self.__database_path)
+        self.__dbConn = sqlite3.connect(self.__databasePath)
         return self
 
     def __exit__(self, exception_type, exception_val, trace):
@@ -41,11 +41,11 @@ class DatabaseConnection:
 
 
 class DatabaseConnectionFactory:
-    def __init__(self, database_path):
-        self.__database_path = database_path
+    def __init__(self, databasePath):
+        self.__databasePath = databasePath
 
-    def create_connection(self):
-        return DatabaseConnection(self.__database_path)
+    def createConnection(self):
+        return DatabaseConnection(self.__databasePath)
 
 
 databaseSession = DatabaseConnectionFactory(g_settingsConfig.DatabaseSettings["fullPath"])

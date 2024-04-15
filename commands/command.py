@@ -1,9 +1,3 @@
-class FlagsType:
-    SINGLE = 0
-    WITH_VALUE = 1
-    VALUE_WITHOUT_FLAG = 2
-
-
 class ValueType:
     NONE = 0
     INT = 1
@@ -21,9 +15,6 @@ class BaseCommand:
 
     def execute(self, commandArgs=None):
         assert False
-
-    def getHelpMsg(self):
-        return self.msgHelp
 
     def _getArgs(self, argsline):
         args = argsline.split()

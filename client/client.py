@@ -2,7 +2,6 @@ import socket
 import json
 
 from database.tables import DatabaseTables
-from clientConsts import Constants
 
 
 class ClientSocket:
@@ -26,8 +25,6 @@ class ClientSocket:
             raise ConnectionError("Client is not connected. Call the connect() method first.")
         receivedData = self.clientSocket.recv(1024)
         response = receivedData.decode()
-        if Constants.COMMAND_FAILED in response:
-            return None
         return json.loads(response)
 
     def sendAndReceive(self, command):
@@ -40,15 +37,7 @@ class ClientSocket:
 
         for command in commands:
             response = self.sendAndReceive(command)
-            if response is None:
-                self.responses.append(
-                    {
-                        "Command": command,
-                        "Result": None
-                    }
-                )
-            else:
-                self.responses.append(response)
+            self.responses.append(response)
 
         return self.responses
 
@@ -77,8 +66,8 @@ if __name__ == "__main__":
         responses1 = client1.sendAndReceiveInThreads(commands)
         responses2 = client2.sendAndReceiveInThreads(commands)
 
-        sorted_responses1 = [response["Result"] for response in responses1]
-        sorted_responses2 = [response["Result"] for response in responses2]
+        sorted_responses1 = [response for response in responses1]
+        sorted_responses2 = [response for response in responses2]
 
         print("Responses from client 1:", sorted_responses1)
         print("Responses from client 2:", sorted_responses2)
