@@ -1,6 +1,8 @@
 import socket
 import threading
 
+from client import Client
+from commands.status import COMMAND_STATUS
 from tools.jsonTools import JsonTools
 from tools.logger import logger
 from consts import Constants
@@ -13,46 +15,67 @@ class Socket:
     def __init__(self, commandCenter):
         self.host = "localhost"
         self.port = 9999
-        self.running = True
+        self.running = False
         self.clients = []
         self.commandCenter = commandCenter
 
     def handleClient(self, clientSocket, addr):
-        self.clients.append((clientSocket, addr))
+        client = Client(clientSocket, addr)
+        self.clients.append(client)
         _log.debug(f"Connection from {addr}")
 
         while self.running:
-            try:
+            # try:
                 data = clientSocket.recv(1024)
                 data = data.decode().strip()
 
                 if data.strip():
                     _log.debug(f"Received: {data}")
+                    self.processCommand(self.clients.index(client), data)
 
-                    thread = threading.Thread(target=self.processCommand, args=(clientSocket, data))
-                    thread.start()
-                    thread.join()
+            # except Exception as e:
+            #     _log.error(f"Error handling client: {e}")
+            #     break
 
-            except Exception as e:
-                _log.error(f"Error handling client: {e}")
-                break
+    def processCommand(self, clientID, command):
+        client = self.clients[clientID]
+        clientSocket = client.socket
 
-    def processCommand(self, clientSocket, command):
         commandString = command.split()
         commandName = commandString.pop(0)
         argsCommand = " ".join(commandString)
         commandObj = self.commandCenter.searchCommand(commandName)
         if commandObj is not None:
-            result = commandObj.execute(argsCommand)
-            result = {
-                "Command": command,
-                "Result": result
-            }
+            if not client.isAuthorized:
+                if not commandObj.isAuthorizedLevel:
+                    result = commandObj.execute(argsCommand)
+                    result = {
+                        "Command": command,
+                        "Status": result[0],
+                        "Result": result[1]
+                    }
+                    if commandObj.COMMAND_NAME == Constants.AUTHORIZATION_COMMAND:
+                        if client.authorization(result):
+                            _log.debug(f"Client is authorized ->  ID<{client.userID}>, fullname: {client.fullname}")
+                else:
+                    result = {
+                        "Command": command,
+                        "Status": COMMAND_STATUS.FAILED,
+                        "Result": Constants.CLIENT_IS_NOT_AUTHORIZED_MSG
+                    }
+            else:
+                result = commandObj.execute(argsCommand)
+                result = {
+                    "Command": command,
+                    "Status": result[0],
+                    "Result": result[1]
+                }
         else:
             _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(commandName))
             result = {
                 "Command": command,
-                "Result": None
+                "Status": COMMAND_STATUS.FAILED,
+                "Result": Constants.COMMAND_NOT_FOUND_MSG.format(commandName)
             }
         response = JsonTools.serialize(result)
         self.sendToClient(clientSocket, response)
@@ -66,6 +89,7 @@ class Socket:
         serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serverSocket.bind((self.host, self.port))
         serverSocket.listen(5)
+        self.running = True
         _log.debug(f"Server listening on {self.host}:{self.port}")
 
         while self.running:
@@ -80,10 +104,10 @@ class Socket:
     def stop(self):
         _log.debug("Stopping socket...")
         self.running = False
-        for clientSocket, addr in self.clients:
+        for client in self.clients:
             try:
-                clientSocket.shutdown(socket.SHUT_RDWR)
-                clientSocket.close()
+                client.socket.shutdown(socket.SHUT_RDWR)
+                client.socket.close()
             except Exception as e:
                 _log.error(f"Error closing client connection: {e}")
 

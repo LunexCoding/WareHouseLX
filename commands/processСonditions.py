@@ -16,4 +16,6 @@ class ProcessConditions:
                     condition = condition.strip()
             processedConditions.append(condition)
 
+        if len(processedConditions) == 1:
+            processedConditions = "".join(processedConditions)
         return processedConditions

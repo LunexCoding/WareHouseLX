@@ -1,5 +1,5 @@
-from .service import commands as serviceCommands
-from .client import commands as clientCommands
+from .service import COMMANDS as serviceCommands
+from .client import COMMANDS as clientCommands
 from tools.logger import logger
 
 

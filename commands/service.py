@@ -20,10 +20,15 @@ class InitBooks(ServiceCommand):
         self.msgHelp = Constants.INIT_BOOKS_HELP_MSG
 
     def execute(self, commandArgs=None):
-        for book in g_referenceBooks:
-            book.init()
+        try:
+            for book in g_referenceBooks:
+                book.init()
+            return True
+        except Exception as e:
+            _log.debug(e)
+            return False
 
 
-commands = {
+COMMANDS = {
     InitBooks.COMMAND_NAME: InitBooks
 }

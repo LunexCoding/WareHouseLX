@@ -113,6 +113,7 @@ class ReferenceBookFactory:
 g_referenceBookFactory = ReferenceBookFactory(DatabaseConnectionFactory(g_settingsConfig.DatabaseSettings["fullPath"]))
 
 g_usersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.USERS)
+g_userRoles = g_referenceBookFactory.createReferenceBook(DatabaseTables.ROLES)
 g_incomingDocumentsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.INCOMING_DOCUMENTS)
 g_incomingDocumentDetailsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.INCOMING_DOCUMENT_DETAILS)
 g_warehouseBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.WAREHOUSE)
@@ -122,6 +123,7 @@ g_warehouseOutgoingDetailsBook = g_referenceBookFactory.createReferenceBook(Data
 
 g_referenceBooks = [
     g_usersBook,
+    g_userRoles,
     g_incomingDocumentsBook,
     g_incomingDocumentDetailsBook,
     g_warehouseBook,

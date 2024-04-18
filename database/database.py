@@ -8,14 +8,14 @@ class DatabaseConnection:
     def __init__(self, databasePath):
         self.__databasePath = databasePath
         self.__lock = threading.Lock()
+        self.__dbConn = sqlite3.connect(self.__databasePath)
 
     def __enter__(self):
-        self.__dbConn = sqlite3.connect(self.__databasePath)
         return self
 
     def __exit__(self, exception_type, exception_val, trace):
         try:
-            self.__dbConn.close()
+            pass
         except AttributeError:
             pass
 
@@ -38,6 +38,12 @@ class DatabaseConnection:
             if all:
                 return cursor.fetchall()
             return cursor.fetchone()
+
+    def close(self):
+        self.__dbConn.close()
+
+    def __del__(self):
+        self.close()
 
 
 class DatabaseConnectionFactory:

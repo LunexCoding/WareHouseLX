@@ -55,20 +55,30 @@ if __name__ == "__main__":
     client1.connect()
     client2.connect()
 
-    commands = [
+    commands1 = [
         "long_run",
         f"search {DatabaseTables.USERS} RoleID=2",
         f"search {DatabaseTables.USERS} RoleID=2|ID<3",
-        "add"
+        "add",
+        "authorization admin admin",
+        f"search {DatabaseTables.USERS} RoleID=2",
+    ]
+    commands2 = [
+        "long_run",
+        f"search {DatabaseTables.USERS} RoleID=2",
+        f"search {DatabaseTables.USERS} RoleID=2|ID<3",
+        "add",
+        "authorization user user",
+        f"search {DatabaseTables.USERS} RoleID=2",
     ]
 
-    for _ in range(2):
-        responses1 = client1.sendAndReceiveInThreads(commands)
-        responses2 = client2.sendAndReceiveInThreads(commands)
 
-        sorted_responses1 = [response for response in responses1]
-        sorted_responses2 = [response for response in responses2]
+    responses1 = client1.sendAndReceiveInThreads(commands1)
+    responses2 = client2.sendAndReceiveInThreads(commands2)
 
-        print("Responses from client 1:", sorted_responses1)
-        print("Responses from client 2:", sorted_responses2)
-        print()
+    sortedResponses1 = [response for response in responses1]
+    sortedResponses2 = [response for response in responses2]
+
+    print("Responses from clientApp 1:", sortedResponses1)
+    print("Responses from clientApp 2:", sortedResponses2)
+
