@@ -40,6 +40,40 @@ class SearchRows(ClientCommand):
         return COMMAND_STATUS.FAILED, None
 
 
+class AddRow(ClientCommand):
+    COMMAND_NAME = "add"
+
+    def __init__(self):
+        super().__init__()
+        self.msgHelp = None
+        self._allowedFlags = {
+            "-t": ValueType.STRING,
+            "-c": ValueType.LIST,
+            "-v": ValueType.LIST
+        }
+        self._argsWithoutFlagsOrder = ["-t", "-c", "-v"]
+        self.isAuthorizedLevel = True
+
+    def execute(self, commandArgs=None):
+        args = self._getArgs(commandArgs)
+        if self._checkFlags(args):
+
+            table = args["-t"]
+            referenceBook = [book for book in g_referenceBooks if book.table == table][0]
+            columns = args["-c"]
+            if len(columns) == 1 and columns[0] == "*":
+                columns = referenceBook.columns.copy()
+                del columns[0]
+            values = args["-v"]
+
+            try:
+                row = dict(zip(columns, values))
+                referenceBook.addRow(row)
+                return COMMAND_STATUS.EXECUTED, None
+            except Exception:
+                return COMMAND_STATUS.FAILED, None
+
+
 class Authorization(ClientCommand):
     COMMAND_NAME = "authorization"
 
@@ -84,7 +118,8 @@ class Authorization(ClientCommand):
     @staticmethod
     def _getRole(user):
         referenceBook = [book for book in g_referenceBooks if book.table == Constants.TABLE_ROLES][0]
-        condition = f"ID={user['RoleID']}"
+        roleID = user['RoleID']
+        condition = f"ID={roleID}"
         processedCondition = ProcessConditions.process(condition.split("|"), referenceBook.columns)
         role = referenceBook.searchRowByParams(processedCondition)[0]["Name"]
         return role
@@ -108,6 +143,7 @@ class LongRunningCommand(ClientCommand):
 
 COMMANDS = {
     SearchRows.COMMAND_NAME: SearchRows,
+    AddRow.COMMAND_NAME: AddRow,
     LongRunningCommand.COMMAND_NAME: LongRunningCommand,
     Authorization.COMMAND_NAME: Authorization
 }
