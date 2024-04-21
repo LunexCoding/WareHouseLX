@@ -1,8 +1,12 @@
+import json
+
+
 class ValueType:
     NONE = 0
     INT = 1
     STRING = 2
     FLOAT = 3
+    LIST = 4
 
 
 class BaseCommand:
@@ -34,14 +38,24 @@ class BaseCommand:
                             last = arg
                         else:
                             last = next(flags)
-                            commandArgs[last] = self._convertValue(last, arg)
+                            # Обработка списка
+                            if '[' in arg:
+                                arg = arg.replace("[", "").replace("]", "").split(",")
+                                commandArgs[last] = arg
+                            else:
+                                commandArgs[last] = self._convertValue(last, arg)
                             last = None
                 else:
-                    if "-" in arg:
-                        commandArgs[arg] = None
+                    if '[' in arg:
+                        arg = arg.replace("[", "").replace("]", "").split(",")
+                        commandArgs[last] = arg
                     else:
-                        commandArgs[last] = self._convertValue(last, arg)
-                        last = None
+                        if "-" in arg:
+                            commandArgs[arg] = None
+                            last = arg
+                        else:
+                            commandArgs[last] = self._convertValue(last, arg)
+                            last = None
             except StopIteration:
                 break
         return commandArgs
@@ -53,6 +67,8 @@ class BaseCommand:
                 return int(arg)
             if valueType == ValueType.FLOAT:
                 return float(arg)
+            if ValueType == ValueType.LIST:
+                return json.loads(arg)
             return arg
         return arg
 
