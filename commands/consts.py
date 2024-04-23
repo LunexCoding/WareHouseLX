@@ -8,3 +8,5 @@ class Constants:
     TABLE_ROLES = DatabaseTables.ROLES
     USER_NOT_FOUND = """Проверьте свои данные."""
     AUTHORIZATION_COMMAND_FAILED = "Команда не была выполнена."
+    CLIENT_IS_NOT_AUTHORIZED_MSG = "Not authorized."
+    ACCESS_ERROR_MSG = "Access error."

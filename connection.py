@@ -46,44 +46,15 @@ class Socket:
         argsCommand = " ".join(commandString)
         commandObj = self.commandCenter.searchCommand(commandName)
         if commandObj is not None:
-            if not client.isAuthorized:
-                if not commandObj.isAuthorizedLevel:
-                    if client.role >= commandObj.requiredAccessLevel:
-                        result = commandObj.execute(argsCommand)
-                        result = {
-                            "Command": command,
-                            "Status": result[0],
-                            "Result": result[1]
-                        }
-                        if commandObj.COMMAND_NAME == Constants.AUTHORIZATION_COMMAND:
-                            if client.authorization(result):
-                                _log.debug(f"Client is authorized ->  ID<{client.userID}>, fullname: {client.fullname}")
-                    else:
-                        result = {
-                            "Command": command,
-                            "Status": COMMAND_STATUS.FAILED,
-                            "Result": Constants.ACCESS_ERROR_MSG
-                        }
-                else:
-                    result = {
-                        "Command": command,
-                        "Status": COMMAND_STATUS.FAILED,
-                        "Result": Constants.CLIENT_IS_NOT_AUTHORIZED_MSG
-                    }
-            else:
-                if client.role >= commandObj.requiredAccessLevel:
-                    result = commandObj.execute(argsCommand)
-                    result = {
-                        "Command": command,
-                        "Status": result[0],
-                        "Result": result[1]
-                    }
-                else:
-                    result = {
-                        "Command": command,
-                        "Status": COMMAND_STATUS.FAILED,
-                        "Result": Constants.ACCESS_ERROR_MSG
-                    }
+            result = commandObj.execute(argsCommand, client.role, client.isAuthorized)
+            result = {
+                "Command": command,
+                "Status": result[0],
+                "Result": result[1]
+            }
+            if commandObj.COMMAND_NAME == Constants.AUTHORIZATION_COMMAND:
+                if client.authorization(result):
+                    _log.debug(f"Client is authorized ->  ID<{client.userID}>, fullname: {client.fullname}")
         else:
             _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(commandName))
             result = {

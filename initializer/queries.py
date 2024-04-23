@@ -12,7 +12,7 @@ class SqlQueries:
     createTableUsers = f"""
         CREATE TABLE IF NOT EXISTS {DatabaseTables.USERS} (
             `ID` INTEGER PRIMARY KEY,
-            `Login` VARCHAR(255),
+            `Login` VARCHAR(255) UNIQUE,
             `Password` VARCHAR(255),
             `RoleID` INTEGER,
             `Fullname` VARCHAR(255),
