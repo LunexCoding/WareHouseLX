@@ -48,13 +48,15 @@ class Initializer:
     @staticmethod
     def run():
         if not FileSystem.exists(g_settingsConfig.DatabaseSettings["databaseDirectory"]):
+            _log.debug("Creating a directory for the database...")
             FileSystem.makeDir(g_settingsConfig.DatabaseSettings["databaseDirectory"])
-            if not FileSystem.exists(g_settingsConfig.DatabaseSettings["fullPath"]):
-                _log.debug("Initializing the Database...")
-                Initializer.initializeDatabase()
-                Initializer.initializeDatabaseTriggers()
-                Initializer.initializeDatabaseData()
-                _log.debug("Database initialized.")
-                return True
-        _log.debug("The database already exists.")
-        return False
+        if not FileSystem.exists(g_settingsConfig.DatabaseSettings["fullPath"]):
+            _log.debug("Initializing the Database...")
+            Initializer.initializeDatabase()
+            Initializer.initializeDatabaseTriggers()
+            Initializer.initializeDatabaseData()
+            _log.debug("Database initialized.")
+            return True
+        else:
+            _log.debug("The database already exists.")
+            return False

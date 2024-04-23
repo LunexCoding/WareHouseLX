@@ -6,7 +6,7 @@ class Client:
     def __init__(self, socket, addr):
         self._socket = socket
         self._addr = addr
-        self._userID = None  # add default role: guest
+        self._userID = None
         self._role = ROLES.GUEST
         self.isAuthorized = False
         self._fullname = None

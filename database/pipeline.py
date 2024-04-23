@@ -1,4 +1,9 @@
+from collections import namedtuple
+
 from .database import databaseSession
+
+
+OPERATION = namedtuple('Operation', ['query', 'data'])
 
 
 class DatabasePipeline:
@@ -6,16 +11,15 @@ class DatabasePipeline:
         self.__operations = []
 
     def addOperation(self, operation, data=None):
-        self.__operations.append([operation, data])
+        self.__operations.append(OPERATION(query=operation, data=data))
 
     def run(self):
         with databaseSession.createConnection() as db:
-            for operationData in self.__operations:
-                operation, data = operationData[0], operationData[1]
-                if data is not None:
-                    db.execute(operation, data)
+            for operation in self.__operations:
+                if operation.data is not None:
+                    db.execute(operation.query, operation.data)
                 else:
-                    db.execute(operation)
+                    db.execute(operation.query)
         self.__clear()
 
     def __clear(self):
