@@ -1,7 +1,7 @@
 import json
 
 
-class ValueType:
+class VALUE_TYPE:
     NONE = 0
     INT = 1
     STRING = 2
@@ -30,7 +30,7 @@ class BaseCommand:
                 if last is None:
                     if arg in self._allowedFlags:
                         commandArgs[arg] = None
-                        if self._allowedFlags[arg] != ValueType.NONE:
+                        if self._allowedFlags[arg] != VALUE_TYPE.NONE:
                             last = arg
                     else:
                         if "-" in arg:
@@ -63,11 +63,11 @@ class BaseCommand:
     def _convertValue(self, flag, arg):
         if flag in self._allowedFlags:
             valueType = self._allowedFlags[flag]
-            if valueType == ValueType.INT:
+            if valueType == VALUE_TYPE.INT:
                 return int(arg)
-            if valueType == ValueType.FLOAT:
+            if valueType == VALUE_TYPE.FLOAT:
                 return float(arg)
-            if ValueType == ValueType.LIST:
+            if VALUE_TYPE == VALUE_TYPE.LIST:
                 return json.loads(arg)
             return arg
         return arg

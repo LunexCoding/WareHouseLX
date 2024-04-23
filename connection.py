@@ -48,15 +48,22 @@ class Socket:
         if commandObj is not None:
             if not client.isAuthorized:
                 if not commandObj.isAuthorizedLevel:
-                    result = commandObj.execute(argsCommand)
-                    result = {
-                        "Command": command,
-                        "Status": result[0],
-                        "Result": result[1]
-                    }
-                    if commandObj.COMMAND_NAME == Constants.AUTHORIZATION_COMMAND:
-                        if client.authorization(result):
-                            _log.debug(f"Client is authorized ->  ID<{client.userID}>, fullname: {client.fullname}")
+                    if client.role >= commandObj.requiredAccessLevel:
+                        result = commandObj.execute(argsCommand)
+                        result = {
+                            "Command": command,
+                            "Status": result[0],
+                            "Result": result[1]
+                        }
+                        if commandObj.COMMAND_NAME == Constants.AUTHORIZATION_COMMAND:
+                            if client.authorization(result):
+                                _log.debug(f"Client is authorized ->  ID<{client.userID}>, fullname: {client.fullname}")
+                    else:
+                        result = {
+                            "Command": command,
+                            "Status": COMMAND_STATUS.FAILED,
+                            "Result": Constants.ACCESS_ERROR_MSG
+                        }
                 else:
                     result = {
                         "Command": command,
@@ -64,12 +71,19 @@ class Socket:
                         "Result": Constants.CLIENT_IS_NOT_AUTHORIZED_MSG
                     }
             else:
-                result = commandObj.execute(argsCommand)
-                result = {
-                    "Command": command,
-                    "Status": result[0],
-                    "Result": result[1]
-                }
+                if client.role >= commandObj.requiredAccessLevel:
+                    result = commandObj.execute(argsCommand)
+                    result = {
+                        "Command": command,
+                        "Status": result[0],
+                        "Result": result[1]
+                    }
+                else:
+                    result = {
+                        "Command": command,
+                        "Status": COMMAND_STATUS.FAILED,
+                        "Result": Constants.ACCESS_ERROR_MSG
+                    }
         else:
             _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(commandName))
             result = {

@@ -2,7 +2,8 @@ import time
 
 from .consts import Constants
 from .status import COMMAND_STATUS
-from .command import BaseCommand, ValueType
+from .command import BaseCommand, VALUE_TYPE
+from .accessLevel import ACCESS_LEVEL
 from .processСonditions import ProcessConditions
 from dataStructures.referenceBook import g_referenceBooks
 
@@ -11,6 +12,7 @@ class ClientCommand(BaseCommand):
     def __init__(self):
         super().__init__()
         self.isAuthorizedLevel = False
+        self.requiredAccessLevel = ACCESS_LEVEL.USER
 
 
 class SearchRows(ClientCommand):
@@ -20,11 +22,12 @@ class SearchRows(ClientCommand):
         super().__init__()
         self.msgHelp = None
         self._allowedFlags = {
-            "-t": ValueType.STRING,
-            "-c": ValueType.STRING
+            "-t": VALUE_TYPE.STRING,
+            "-c": VALUE_TYPE.STRING
         }
         self._argsWithoutFlagsOrder = ["-t", "-c"]
         self.isAuthorizedLevel = True
+        self.requiredAccessLevel = ACCESS_LEVEL.USER
 
     def execute(self, commandArgs=None):
         args = self._getArgs(commandArgs)
@@ -47,12 +50,13 @@ class AddRow(ClientCommand):
         super().__init__()
         self.msgHelp = None
         self._allowedFlags = {
-            "-t": ValueType.STRING,
-            "-c": ValueType.LIST,
-            "-v": ValueType.LIST
+            "-t": VALUE_TYPE.STRING,
+            "-c": VALUE_TYPE.LIST,
+            "-v": VALUE_TYPE.LIST
         }
         self._argsWithoutFlagsOrder = ["-t", "-c", "-v"]
         self.isAuthorizedLevel = True
+        self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
 
     def execute(self, commandArgs=None):
         args = self._getArgs(commandArgs)
@@ -81,11 +85,12 @@ class Authorization(ClientCommand):
         super().__init__()
         self.msgHelp = None
         self._allowedFlags = {
-            "-l": ValueType.STRING,
-            "-p": ValueType.STRING
+            "-l": VALUE_TYPE.STRING,
+            "-p": VALUE_TYPE.STRING
         }
         self._argsWithoutFlagsOrder = ["-l", "-p"]
         self.isAuthorizedLevel = False
+        self.requiredAccessLevel = ACCESS_LEVEL.GUEST
 
     def execute(self, commandArgs=None):
         args = self._getArgs(commandArgs)
@@ -132,6 +137,7 @@ class LongRunningCommand(ClientCommand):
         super().__init__()
         self.msgHelp = None
         self.isAuthorizedLevel = True
+        self.requiredAccessLevel = ACCESS_LEVEL.USER
 
     def execute(self, commandArgs=None):
         # Имитация долгой работы на 10 секунд
