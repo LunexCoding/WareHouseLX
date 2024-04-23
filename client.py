@@ -12,10 +12,10 @@ class Client:
         self._fullname = None
 
     def authorization(self, data):
-        if data["Status"] == COMMAND_STATUS.EXECUTED:
-            self._userID = data["Result"]["ID"]
-            self._role = ROLES.getRoleStatus(data["Result"]["Role"])
-            self._fullname = data["Result"]["Fullname"]
+        if isinstance(data, dict):
+            self._userID = data["ID"]
+            self._role = ROLES.getRoleStatus(data["Role"])
+            self._fullname = data["Fullname"]
             self.isAuthorized = True
             return True
         return False

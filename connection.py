@@ -46,15 +46,12 @@ class Socket:
         argsCommand = " ".join(commandString)
         commandObj = self.commandCenter.searchCommand(commandName)
         if commandObj is not None:
-            result = commandObj.execute(argsCommand, client.role, client.isAuthorized)
+            result = commandObj.execute(client, argsCommand)
             result = {
                 "Command": command,
                 "Status": result[0],
                 "Result": result[1]
             }
-            if commandObj.COMMAND_NAME == Constants.AUTHORIZATION_COMMAND:
-                if client.authorization(result):
-                    _log.debug(f"Client is authorized ->  ID<{client.userID}>, fullname: {client.fullname}")
         else:
             _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(commandName))
             result = {

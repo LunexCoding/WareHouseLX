@@ -6,6 +6,10 @@ from .command import BaseCommand, VALUE_TYPE
 from .accessLevel import ACCESS_LEVEL
 from .processСonditions import ProcessConditions
 from dataStructures.referenceBook import g_referenceBooks
+from tools.logger import logger
+
+
+_log = logger.getLogger(__name__)
 
 
 class ClientCommand(BaseCommand):
@@ -20,10 +24,12 @@ class ClientCommand(BaseCommand):
     def _checkAuthorizedLevel(self, clientAuthorization):
         return True if clientAuthorization == self.isAuthorizedLevel else False
 
-    def _checkExecutionPermission(self, clientRole, clientAuthorization):
-        if not self._checkAccessLevel(clientRole):
+    def _checkExecutionPermission(self, client):
+        if client is None:
+            return COMMAND_STATUS.FAILED, "Неправильный клиент"
+        if not self._checkAccessLevel(client.role):
             return COMMAND_STATUS.FAILED, Constants.ACCESS_ERROR_MSG
-        if not self._checkAuthorizedLevel(clientAuthorization):
+        if not self._checkAuthorizedLevel(client.isAuthorized):
             return COMMAND_STATUS.FAILED, Constants.CLIENT_IS_NOT_AUTHORIZED_MSG
         return COMMAND_STATUS.EXECUTED, True
 
@@ -42,11 +48,11 @@ class SearchRows(ClientCommand):
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.USER
 
-    def execute(self, commandArgs=None, clientRole=ACCESS_LEVEL.GUEST, clientAuthorization=False):
+    def execute(self, client, commandArgs=None):
         args = self._getArgs(commandArgs)
         if self._checkFlags(args):
 
-            executionPermission = self._checkExecutionPermission(clientRole, clientAuthorization)
+            executionPermission = self._checkExecutionPermission(client)
             if executionPermission[0] == COMMAND_STATUS.EXECUTED:
 
                 table = args["-t"]
@@ -76,11 +82,11 @@ class AddRow(ClientCommand):
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
 
-    def execute(self, commandArgs=None, clientRole=ACCESS_LEVEL.GUEST, clientAuthorization=False):
+    def execute(self, client, commandArgs=None):
         args = self._getArgs(commandArgs)
         if self._checkFlags(args):
 
-            executionPermission = self._checkExecutionPermission(clientRole, clientAuthorization)
+            executionPermission = self._checkExecutionPermission(client)
             if executionPermission[0] == COMMAND_STATUS.EXECUTED:
 
                 table = args["-t"]
@@ -116,11 +122,11 @@ class Authorization(ClientCommand):
         self.isAuthorizedLevel = False
         self.requiredAccessLevel = ACCESS_LEVEL.GUEST
 
-    def execute(self, commandArgs=None, clientRole=ACCESS_LEVEL.GUEST, clientAuthorization=False):
+    def execute(self, client, commandArgs=None):
         args = self._getArgs(commandArgs)
         if self._checkFlags(args):
 
-            executionPermission = self._checkExecutionPermission(clientRole, clientAuthorization)
+            executionPermission = self._checkExecutionPermission(client)
             if executionPermission[0] == COMMAND_STATUS.EXECUTED:
 
                 referenceBook = [book for book in g_referenceBooks if book.table == Constants.TABLE_FOR_AUTHORZATION][0]
@@ -131,9 +137,11 @@ class Authorization(ClientCommand):
                 if user is not None:
                     role = self._getRole(user)
                     user["Role"] = role
+                    client.authorization(user)
                     del user["Login"]
                     del user["Password"]
                     del user["RoleID"]
+                    _log.debug(f"Client is authorized -> ID<{user['ID']}>, fullname: {user['Fullname']}")
                     return COMMAND_STATUS.EXECUTED, user
                 return COMMAND_STATUS.FAILED, Constants.USER_NOT_FOUND
             return executionPermission
@@ -168,9 +176,9 @@ class LongRunningCommand(ClientCommand):
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.USER
 
-    def execute(self, commandArgs=None, clientRole=ACCESS_LEVEL.GUEST, clientAuthorization=False):
+    def execute(self, client, commandArgs=None):
         # Имитация долгой работы на 10 секунд
-        executionPermission = self._checkExecutionPermission(clientRole, clientAuthorization)
+        executionPermission = self._checkExecutionPermission(client)
         if executionPermission[0] == COMMAND_STATUS.EXECUTED:
             start_time = time.time()
             while time.time() - start_time < 10:
