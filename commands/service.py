@@ -20,7 +20,7 @@ class InitBatabase(ServiceCommand):
         super().__init__()
         self.msgHelp = Constants.INIT_DATABASE_HELP_MSG
 
-    def execute(self, commandArgs=None):
+    def execute(self, client=None, commandArgs=None):
         return Initializer.run()
 
 
@@ -31,7 +31,7 @@ class InitBooks(ServiceCommand):
         super().__init__()
         self.msgHelp = Constants.INIT_BOOKS_HELP_MSG
 
-    def execute(self, commandArgs=None):
+    def execute(self, client=None, commandArgs=None):
         try:
             for book in g_referenceBooks:
                 book.init()

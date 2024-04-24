@@ -17,7 +17,7 @@ class BaseCommand:
         self._allowedFlags = {}
         self._argsWithoutFlagsOrder = []
 
-    def execute(self, commandArgs=None):
+    def execute(self, client=None, commandArgs=None):
         assert False
 
     def _getArgs(self, argsline):
@@ -38,7 +38,6 @@ class BaseCommand:
                             last = arg
                         else:
                             last = next(flags)
-                            # Обработка списка
                             if '[' in arg:
                                 arg = arg.replace("[", "").replace("]", "").split(",")
                                 commandArgs[last] = arg

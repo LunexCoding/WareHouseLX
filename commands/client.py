@@ -26,7 +26,7 @@ class ClientCommand(BaseCommand):
 
     def _checkExecutionPermission(self, client):
         if client is None:
-            return COMMAND_STATUS.FAILED, "Неправильный клиент"
+            return COMMAND_STATUS.FAILED, Constants.CLIENT_NOT_ACCEPTED_MDG
         if not self._checkAccessLevel(client.role):
             return COMMAND_STATUS.FAILED, Constants.ACCESS_ERROR_MSG
         if not self._checkAuthorizedLevel(client.isAuthorized):
@@ -48,7 +48,7 @@ class SearchRows(ClientCommand):
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.USER
 
-    def execute(self, client, commandArgs=None):
+    def execute(self, client=None, commandArgs=None):
         args = self._getArgs(commandArgs)
         if self._checkFlags(args):
 
@@ -82,7 +82,7 @@ class AddRow(ClientCommand):
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
 
-    def execute(self, client, commandArgs=None):
+    def execute(self, client=None, commandArgs=None):
         args = self._getArgs(commandArgs)
         if self._checkFlags(args):
 
@@ -122,7 +122,7 @@ class Authorization(ClientCommand):
         self.isAuthorizedLevel = False
         self.requiredAccessLevel = ACCESS_LEVEL.GUEST
 
-    def execute(self, client, commandArgs=None):
+    def execute(self, client=None, commandArgs=None):
         args = self._getArgs(commandArgs)
         if self._checkFlags(args):
 
@@ -176,7 +176,7 @@ class LongRunningCommand(ClientCommand):
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.USER
 
-    def execute(self, client, commandArgs=None):
+    def execute(self, client=None, commandArgs=None):
         # Имитация долгой работы на 10 секунд
         executionPermission = self._checkExecutionPermission(client)
         if executionPermission[0] == COMMAND_STATUS.EXECUTED:

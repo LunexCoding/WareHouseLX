@@ -10,3 +10,4 @@ class Constants:
     AUTHORIZATION_COMMAND_FAILED = "Команда не была выполнена."
     CLIENT_IS_NOT_AUTHORIZED_MSG = "Not authorized."
     ACCESS_ERROR_MSG = "Access error."
+    CLIENT_NOT_ACCEPTED_MDG = "Client not accepted."
