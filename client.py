@@ -1,4 +1,5 @@
 from commands.status import COMMAND_STATUS
+from commands.accessLevel import ROLES
 
 
 class Client:
@@ -6,13 +7,15 @@ class Client:
         self._socket = socket
         self._addr = addr
         self._userID = None
+        self._role = ROLES.GUEST
         self.isAuthorized = False
         self._fullname = None
 
     def authorization(self, data):
-        if data["Status"] == COMMAND_STATUS.EXECUTED:
-            self._userID = data["Result"]["ID"]
-            self._fullname = data["Result"]["Fullname"]
+        if isinstance(data, dict):
+            self._userID = data["ID"]
+            self._role = ROLES.getRoleStatus(data["Role"])
+            self._fullname = data["Fullname"]
             self.isAuthorized = True
             return True
         return False
@@ -32,3 +35,7 @@ class Client:
     @property
     def fullname(self):
         return self._fullname
+
+    @property
+    def role(self):
+        return self._role

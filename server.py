@@ -8,6 +8,10 @@ from consts import Constants
 
 
 _log = logger.getLogger(__name__)
+LAUNCH_COMMANDS = [
+    Constants.COMMAND_INIT_DATABASE,
+    Constants.COMMAND_INIT
+]
 
 
 class Server:
@@ -17,11 +21,13 @@ class Server:
 
     def start(self):
         self.running = True
-        initBooksCommand = g_commandCenter.searchCommand(Constants.COMMAND_INIT)
-        if initBooksCommand is not None:
-            initBooksCommand.execute()
-        else:
-            _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(Constants.COMMAND_INIT))
+        for command in LAUNCH_COMMANDS:
+            commandObj = g_commandCenter.searchCommand(command)
+            if commandObj is not None:
+                commandObj.execute()
+            else:
+                _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(command))
+
         self.socket = Socket(g_commandCenter)
         self.socket.start()
 

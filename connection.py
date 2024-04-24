@@ -25,7 +25,7 @@ class Socket:
         _log.debug(f"Connection from {addr}")
 
         while self.running:
-            # try:
+            try:
                 data = clientSocket.recv(1024)
                 data = data.decode().strip()
 
@@ -33,9 +33,9 @@ class Socket:
                     _log.debug(f"Received: {data}")
                     self.processCommand(self.clients.index(client), data)
 
-            # except Exception as e:
-            #     _log.error(f"Error handling client: {e}")
-            #     break
+            except Exception as e:
+                _log.error(f"Error handling client: {e}")
+                break
 
     def processCommand(self, clientID, command):
         client = self.clients[clientID]
@@ -46,30 +46,12 @@ class Socket:
         argsCommand = " ".join(commandString)
         commandObj = self.commandCenter.searchCommand(commandName)
         if commandObj is not None:
-            if not client.isAuthorized:
-                if not commandObj.isAuthorizedLevel:
-                    result = commandObj.execute(argsCommand)
-                    result = {
-                        "Command": command,
-                        "Status": result[0],
-                        "Result": result[1]
-                    }
-                    if commandObj.COMMAND_NAME == Constants.AUTHORIZATION_COMMAND:
-                        if client.authorization(result):
-                            _log.debug(f"Client is authorized ->  ID<{client.userID}>, fullname: {client.fullname}")
-                else:
-                    result = {
-                        "Command": command,
-                        "Status": COMMAND_STATUS.FAILED,
-                        "Result": Constants.CLIENT_IS_NOT_AUTHORIZED_MSG
-                    }
-            else:
-                result = commandObj.execute(argsCommand)
-                result = {
-                    "Command": command,
-                    "Status": result[0],
-                    "Result": result[1]
-                }
+            result = commandObj.execute(client, argsCommand)
+            result = {
+                "Command": command,
+                "Status": result[0],
+                "Result": result[1]
+            }
         else:
             _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(commandName))
             result = {
