@@ -3,7 +3,7 @@ import time
 from .consts import Constants
 from .status import COMMAND_STATUS
 from .command import BaseCommand, VALUE_TYPE
-from .accessLevel import ACCESS_LEVEL
+from .accessLevel import ACCESS_LEVEL, ROLES
 from .processСonditions import ProcessConditions
 from dataStructures.referenceBook import g_referenceBooks
 from tools.logger import logger
@@ -136,7 +136,7 @@ class Authorization(ClientCommand):
                 user = self._getUser(login, password, referenceBook)
                 if user is not None:
                     role = self._getRole(user)
-                    user["Role"] = role
+                    user["Role"] = ROLES.getRoleStatus(role)
                     client.authorization(user)
                     del user["Login"]
                     del user["Password"]
@@ -152,9 +152,9 @@ class Authorization(ClientCommand):
     def _getUser(login, password, referenceBook):
         condition = f"Login='{login}'|Password='{password}'"
         processedCondition = ProcessConditions.process(condition.split("|"), referenceBook.columns)
-        user = referenceBook.searchRowByParams(processedCondition)[0]
+        user = referenceBook.searchRowByParams(processedCondition)
         if user:
-            return user
+            return user[0]
         return None
 
     @staticmethod
