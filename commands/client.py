@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 from .consts import Constants
 from .status import COMMAND_STATUS
@@ -96,9 +97,9 @@ class AddRow(ClientCommand):
                     columns = referenceBook.columns.copy()
                     del columns[0]
                 values = args["-v"]
-
                 try:
                     row = dict(zip(columns, values))
+                    row["CreationDate"] = datetime.fromtimestamp(row["CreationDate"]).strftime(Constants.DATETIME_FORMAT)
                     referenceBook.addRow(row)
                     return COMMAND_STATUS.EXECUTED, None
                 except Exception:
@@ -167,6 +168,35 @@ class Authorization(ClientCommand):
         return role
 
 
+class LoadRows(ClientCommand):
+    COMMAND_NAME = "load"
+
+    def __init__(self):
+        super().__init__()
+        self.msgHelp = None
+        self._allowedFlags = {
+            "-t": VALUE_TYPE.STRING
+        }
+        self._argsWithoutFlagsOrder = ["-t"]
+        self.isAuthorizedLevel = True
+        self.requiredAccessLevel = ACCESS_LEVEL.USER
+
+    def execute(self, client=None, commandArgs=None):
+        args = self._getArgs(commandArgs)
+        if self._checkFlags(args):
+
+            executionPermission = self._checkExecutionPermission(client)
+            if executionPermission[0] == COMMAND_STATUS.EXECUTED:
+
+                table = args["-t"]
+                referenceBook = [book for book in g_referenceBooks if book.table == table][0]
+                rows = referenceBook.loadRows()
+                return COMMAND_STATUS.EXECUTED, rows
+
+            return executionPermission
+        return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
+
+
 class LongRunningCommand(ClientCommand):
     COMMAND_NAME = "long_run"
 
@@ -190,6 +220,7 @@ class LongRunningCommand(ClientCommand):
 COMMANDS = {
     SearchRows.COMMAND_NAME: SearchRows,
     AddRow.COMMAND_NAME: AddRow,
+    LoadRows.COMMAND_NAME: LoadRows,
     LongRunningCommand.COMMAND_NAME: LongRunningCommand,
     Authorization.COMMAND_NAME: Authorization
 }

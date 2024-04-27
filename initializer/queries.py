@@ -25,7 +25,7 @@ class SqlQueries:
             Counterparty VARCHAR(255) UNIQUE,
             ContractNumber INTEGER,
             Phone VARCHAR(11),
-            CreationDate DATE,
+            CreationDate TEXT,
             Comment TEXT
         );
     """

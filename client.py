@@ -1,4 +1,3 @@
-from commands.status import COMMAND_STATUS
 from commands.accessLevel import ROLES
 
 
@@ -14,7 +13,7 @@ class Client:
     def authorization(self, data):
         if isinstance(data, dict):
             self._userID = data["ID"]
-            self._role = ROLES.getRoleStatus(data["Role"])
+            self._role = data["Role"]
             self._fullname = data["Fullname"]
             self.isAuthorized = True
             return True

@@ -26,6 +26,8 @@ class _ReferenceBook:
         if rows:
             self._rowList.extend(rows)
             self._loadedRecordsCount += len(rows)
+            return self._rowList
+        return None
 
     def _loadRowsFromDB(self):
         with self.databaseFactory.createConnection() as db:
