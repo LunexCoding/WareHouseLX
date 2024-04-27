@@ -1,3 +1,4 @@
+from datetime import datetime
 from customtkinter import CTkLabel, CTkEntry, CTkFrame, CTkButton
 
 from .consts import Constants
@@ -76,6 +77,7 @@ class InputIncomingDocumentsWindowContext(Context):
             data["Counterparty"] = counterparty
             data["ContractNumber"] = contractNumber
             data["Phone"] = phone
+            data["CreationData"] = datetime.timestamp(datetime.now())
             data["Comment"] = comment
             return data
         return None

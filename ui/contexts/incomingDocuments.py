@@ -1,3 +1,4 @@
+from datetime import datetime
 from tkinter.ttk import Treeview, Scrollbar
 
 import customtkinter as ctk
@@ -7,12 +8,13 @@ from .context import Context
 from .popup.inputIncomingDocumentsWindow import InputIncomingDocumentsWindowContext
 from .consts import Constants
 from settingsConfig import g_settingsConfig
+from dataStructures.referenceBook import g_bookIncomingDocuments
 
 
 class IncomingDocumentsWindowContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
-        self.referenceList = []
+        self._referenceBook = g_bookIncomingDocuments
 
         self.buttonFrame = CTkFrame(window)
         self.userRoleFrame = CTkFrame(self.buttonFrame)
@@ -32,10 +34,11 @@ class IncomingDocumentsWindowContext(Context):
         self.buttonBack = CTkButton(self.buttonFrame, text="Назад", font=Constants.FONT, command=self._onButtonBack)
         self.buttonBack.pack(side="left", padx=10, pady=10)
 
+        self.tree = None
+        self.treeScroll = None
         self.tableFrame = ctk.CTkFrame(window)
         self.tableFrame.pack(side="top", fill="both", expand=True, pady=10, padx=10)
         self.createTable()
-        self._loadRows()
 
     def _onButtonBack(self):
         window = self._window
@@ -52,13 +55,17 @@ class IncomingDocumentsWindowContext(Context):
         )
 
     def _saveDocument(self, data):
-        print(data)
         self._window.topLevelWindow.close()
+        self._referenceBook.insertRow(data)
+        data["CreationData"] = datetime.fromtimestamp(data["CreationData"]).strftime(Constants.DATETIME_FORMAT)
         self.tree.insert("", "end", values=list(data.values()))
-        # self.referenceList.append(data)
 
     def _loadRows(self):
-        ...
+        rows = self._referenceBook.loadRows()
+        if rows is not None:
+            for row in rows:
+                datetime.fromtimestamp(row["CreationData"]).strftime(Constants.DATETIME_FORMAT)
+                self.tree.insert("", "end", values=list(row.values()))
 
     def createTable(self):
         self.tree = Treeview(self.tableFrame, columns=list(Constants.INCOMING_AND_OUTGOING_WINDOWS_TREE_OPTIONS.keys()))
@@ -67,7 +74,8 @@ class IncomingDocumentsWindowContext(Context):
             self.tree.column(header, width=option["size"], anchor="center")
         self.tree.column("#0", width=0, stretch=False)
 
-        self.tree_scroll = Scrollbar(self.tableFrame, orient="vertical", command=self.tree.yview)
-        self.tree.configure(yscrollcommand=self.tree_scroll.set)
-        self.tree_scroll.pack(side="right", fill="y")
+        self.treeScroll = Scrollbar(self.tableFrame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.treeScroll.set)
+        self.treeScroll.pack(side="right", fill="y")
         self.tree.pack(side="left", fill="both", expand=True)
+        self._loadRows()
