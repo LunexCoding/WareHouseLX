@@ -59,7 +59,6 @@ class SearchRows(ClientCommand):
                 table = args["-t"]
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
                 conditionString = args["-c"]
-
                 conditions = ProcessConditions.process(conditionString.split("|"), referenceBook.columns)
                 data = referenceBook.searchRowByParams(conditions)
                 return COMMAND_STATUS.EXECUTED, data
@@ -94,16 +93,20 @@ class AddRow(ClientCommand):
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
                 columns = args["-c"]
                 if len(columns) == 1 and columns[0] == "*":
-                    columns = referenceBook.columns.copy()
-                    del columns[0]
+                    columns = referenceBook.columnsForInsertion.copy()
                 values = args["-v"]
-                try:
-                    row = dict(zip(columns, values))
-                    row["CreationDate"] = datetime.fromtimestamp(row["CreationDate"]).strftime(Constants.DATETIME_FORMAT)
-                    referenceBook.addRow(row)
-                    return COMMAND_STATUS.EXECUTED, None
-                except Exception:
+
+                row = dict(zip(columns, values))
+                row["CreationDate"] = datetime.fromtimestamp(float(row["CreationDate"])).strftime(Constants.DATETIME_FORMAT)
+                rowID = referenceBook.addRow(row)
+                if rowID is not None:
+                    status, result = SearchRows().execute(client, f"{table} ID={rowID}")
+                    if status == COMMAND_STATUS.EXECUTED:
+                        result["CreationDate"] = datetime.strptime(result["CreationDate"], Constants.DATETIME_FORMAT).timestamp()
+                        return COMMAND_STATUS.EXECUTED, result
+
                     return COMMAND_STATUS.FAILED, None
+                return COMMAND_STATUS.FAILED, None
             return executionPermission
 
         return COMMAND_STATUS.FAILED, None
@@ -155,7 +158,7 @@ class Authorization(ClientCommand):
         processedCondition = ProcessConditions.process(condition.split("|"), referenceBook.columns)
         user = referenceBook.searchRowByParams(processedCondition)
         if user:
-            return user[0]
+            return user
         return None
 
     @staticmethod
@@ -164,7 +167,7 @@ class Authorization(ClientCommand):
         roleID = user['RoleID']
         condition = f"ID={roleID}"
         processedCondition = ProcessConditions.process(condition.split("|"), referenceBook.columns)
-        role = referenceBook.searchRowByParams(processedCondition)[0]["Name"]
+        role = referenceBook.searchRowByParams(processedCondition)["Name"]
         return role
 
 

@@ -1,13 +1,15 @@
-from database.tables import DatabaseTables
+from database.tables import DatabaseTables, ColumnsForInsertion
 from database.queries import SqlQueries
 from database.database import DatabaseConnectionFactory
 from settingsConfig import g_settingsConfig
+
 
 
 class _ReferenceBook:
     def __init__(self, table, databaseFactory):
         self._table = table
         self._columns = None
+        self._columnsForInsertion = None
         self._rowList = []
         self._loadedRecordsCount = 0
         self._sampleLimit = g_settingsConfig.DatabaseSettings["sampleLimit"]
@@ -15,6 +17,7 @@ class _ReferenceBook:
 
     def init(self):
         self._columns = self._getTableColumns()
+        self._columnsForInsertion = ColumnsForInsertion.getColumns(self._table)
 
     def _getTableColumns(self):
         with self.databaseFactory.createConnection() as db:
@@ -41,18 +44,33 @@ class _ReferenceBook:
         return result
 
     def addRow(self, row):
-        self._insertRowToDB(row)
+        if not self._checkNextRowExists():
+            self._insertRowToDB(row)
+            return self.lastRowID
+        return None
 
     def _insertRowToDB(self, row):
         columns = []
         for column in row.keys():
-            if column in self._columns:
+            if column in self._columnsForInsertion:
                 columns.append(column)
         with self.databaseFactory.createConnection() as db:
             db.execute(
                 SqlQueries.insertIntoTable(self._table, columns),
                 data=list(row.values())
             )
+
+    def _checkNextRowExists(self):
+        with self.databaseFactory.createConnection() as db:
+            rowID = db.getData(
+                SqlQueries.getLastIDFromTable(self._table)
+            )
+            if rowID is not None:
+                nextRowID = db.getData(
+                    SqlQueries.selectRowFromTableByID(self._table, rowID[0] + 1)
+                )
+                return False if nextRowID is None else True
+            return False
 
     def editRow(self, rowID, data):
         self._updateRowIntoDB(rowID, data)
@@ -80,7 +98,7 @@ class _ReferenceBook:
             "condition": filterData,
             "tableColumns": self._columns
         }
-        SqlQueries.selectFromTable(self._table, requestData)
+
         with self.databaseFactory.createConnection() as db:
             rows = db.getData(
                 SqlQueries.selectFromTable(self._table, requestData, limit, offset),
@@ -89,6 +107,8 @@ class _ReferenceBook:
         result = []
         for row in rows:
             result.append({self._columns[i]: row[i] for i in range(len(self._columns))})
+        if len(result) == 1:
+            return result[0]
         return result
 
     @property
@@ -100,8 +120,19 @@ class _ReferenceBook:
         return self._columns
 
     @property
+    def columnsForInsertion(self):
+        return self._columnsForInsertion
+
+    @property
     def rows(self):
         return self._rowList
+
+    @property
+    def lastRowID(self):
+        with self.databaseFactory.createConnection() as db:
+            return db.getData(
+                SqlQueries.getLastIDFromTable(self._table)
+            )[0]
 
 
 class ReferenceBookFactory:

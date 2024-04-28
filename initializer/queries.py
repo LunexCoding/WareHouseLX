@@ -22,9 +22,8 @@ class SqlQueries:
     createTableIncomingDocuments = f"""
         CREATE TABLE IF NOT EXISTS {DatabaseTables.INCOMING_DOCUMENTS} (
             ID INTEGER PRIMARY KEY,
-            Counterparty VARCHAR(255) UNIQUE,
+            Counterparty VARCHAR(255),
             ContractNumber INTEGER,
-            Phone VARCHAR(11),
             CreationDate TEXT,
             Comment TEXT
         );
