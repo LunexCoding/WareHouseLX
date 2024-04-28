@@ -39,6 +39,7 @@ class IncomingDocumentsWindowContext(Context):
         self.tableFrame = ctk.CTkFrame(window)
         self.tableFrame.pack(side="top", fill="both", expand=True, pady=10, padx=10)
         self.createTable()
+        self._loadRows()
 
     def _onButtonBack(self):
         window = self._window
@@ -54,18 +55,23 @@ class IncomingDocumentsWindowContext(Context):
             }
         )
 
-    def _saveDocument(self, data):
+    def _saveDocument(self, row):
         self._window.topLevelWindow.close()
-        self._referenceBook.insertRow(data)
-        data["CreationData"] = datetime.fromtimestamp(data["CreationData"]).strftime(Constants.DATETIME_FORMAT)
-        self.tree.insert("", "end", values=list(data.values()))
+        dataForInsert = row.copy()
+        del dataForInsert["ID"]
+        del dataForInsert["ContractNumber"]
+        result = self._referenceBook.insertRow(dataForInsert)
+        if result is not None:
+            result["CreationDate"] = datetime.fromtimestamp(result["CreationDate"]).strftime(Constants.DATETIME_FORMAT)
+            values = [str(value) for value in result.values()]
+            self.tree.insert("", "end", values=values)
 
     def _loadRows(self):
         rows = self._referenceBook.loadRows()
         if rows is not None:
             for row in rows:
-                datetime.fromtimestamp(row["CreationData"]).strftime(Constants.DATETIME_FORMAT)
-                self.tree.insert("", "end", values=list(row.values()))
+                values = [str(value) for value in row.values()]
+                self.tree.insert("", "end", values=values)
 
     def createTable(self):
         self.tree = Treeview(self.tableFrame, columns=list(Constants.INCOMING_AND_OUTGOING_WINDOWS_TREE_OPTIONS.keys()))
@@ -78,4 +84,3 @@ class IncomingDocumentsWindowContext(Context):
         self.tree.configure(yscrollcommand=self.treeScroll.set)
         self.treeScroll.pack(side="right", fill="y")
         self.tree.pack(side="left", fill="both", expand=True)
-        self._loadRows()

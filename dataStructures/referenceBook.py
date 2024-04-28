@@ -18,7 +18,10 @@ class _ReferenceBook:
         columns = "[*]"
         values = ",".join(map(str, list(data.values())))
         command = Constants.ADD_COMMAND.format(self._table, columns, [values]).replace("'", "")
-        print(g_commandCenter.execute(command))
+        result = g_commandCenter.execute(command)
+        if result["Status"] == COMMAND_STATUS.EXECUTED:
+            return result["Result"]
+        return None
 
     @property
     def table(self):

@@ -29,30 +29,6 @@ class InputIncomingDocumentsWindowContext(Context):
 
         CTkLabel(
             self.frame,
-            text=Constants.INPUT_INCOMING_DOCUMENTS_FIELDS["ContractNumber"]["text"],
-            font=Constants.FONT
-        ).pack(padx=10, pady=10)
-        self.contractNumberEntry = CTkEntry(
-            self.frame,
-            font=Constants.FONT,
-            width=Constants.INPUT_INCOMING_DOCUMENTS_FIELDS["ContractNumber"]["size"]
-        )
-        self.contractNumberEntry.pack(padx=10, pady=10)
-
-        CTkLabel(
-            self.frame,
-            text=Constants.INPUT_INCOMING_DOCUMENTS_FIELDS["Phone"]["text"],
-            font=Constants.FONT
-        ).pack(padx=10, pady=10)
-        self.phoneEntry = CTkEntry(
-            self.frame,
-            font=Constants.FONT,
-            width=Constants.INPUT_INCOMING_DOCUMENTS_FIELDS["Phone"]["size"]
-        )
-        self.phoneEntry.pack(padx=10, pady=10)
-
-        CTkLabel(
-            self.frame,
             text=Constants.INPUT_INCOMING_DOCUMENTS_FIELDS["Comment"]["text"],
             font=Constants.FONT
         ).pack(padx=10, pady=10)
@@ -70,14 +46,10 @@ class InputIncomingDocumentsWindowContext(Context):
     def _getFieldsData(self):
         data = {column: None for column in Constants.INPUT_INCOMING_DOCUMENTS_FIELDS.keys()}
         counterparty = self.counterpartyEntry.get()
-        contractNumber = self.contractNumberEntry.get()
-        phone = self.phoneEntry.get()
         comment = self.commentEntry.get()
-        if all(len(column) for column in [counterparty, contractNumber, phone]):
+        if all(len(column) for column in [counterparty]):
             data["Counterparty"] = counterparty
-            data["ContractNumber"] = contractNumber
-            data["Phone"] = phone
-            data["CreationData"] = datetime.timestamp(datetime.now())
+            data["CreationDate"] = datetime.timestamp(datetime.now())
             data["Comment"] = comment
             return data
         return None
