@@ -25,17 +25,23 @@ class Socket:
         _log.debug(f"Connection from {addr}")
 
         while self.running:
-            try:
+            # try:
                 data = clientSocket.recv(1024)
+
+                if not data:
+                    _log.debug(f"Client {addr} disconnected")
+                    self.clients.remove(client)
+                    break
+
                 data = data.decode().strip()
 
                 if data.strip():
                     _log.debug(f"Received: {data}")
                     self.processCommand(self.clients.index(client), data)
 
-            except Exception as e:
-                _log.error(f"Error handling client: {e}")
-                break
+            # except Exception as e:
+            #     _log.error(f"Error handling client: {e}")
+            #     break
 
     def processCommand(self, clientID, command):
         client = self.clients[clientID]

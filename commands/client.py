@@ -193,7 +193,7 @@ class LoadRows(ClientCommand):
 
                 table = args["-t"]
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
-                rows = referenceBook.loadRows()
+                rows = referenceBook.loadRows(client)
                 return COMMAND_STATUS.EXECUTED, rows
 
             return executionPermission

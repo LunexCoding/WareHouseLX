@@ -4,14 +4,12 @@ from database.database import DatabaseConnectionFactory
 from settingsConfig import g_settingsConfig
 
 
-
 class _ReferenceBook:
     def __init__(self, table, databaseFactory):
         self._table = table
-        self._columns = None
-        self._columnsForInsertion = None
+        self._columns = []
+        self._columnsForInsertion = []
         self._rowList = []
-        self._loadedRecordsCount = 0
         self._sampleLimit = g_settingsConfig.DatabaseSettings["sampleLimit"]
         self.databaseFactory = databaseFactory
 
@@ -24,18 +22,19 @@ class _ReferenceBook:
             columns = db.getData(SqlQueries.getTableColumns(self._table), all=True)
         return [column[1] for column in columns]
 
-    def loadRows(self):
-        rows = self._loadRowsFromDB()
+    def loadRows(self, client):
+        clientOffset = client.getOffset(self._table)
+        rows = self._loadRowsFromDB(clientOffset)
         if rows:
             self._rowList.extend(rows)
-            self._loadedRecordsCount += len(rows)
-            return self._rowList
+            client.updateOffset(self._table, len(rows))
+            return rows
         return None
 
-    def _loadRowsFromDB(self):
+    def _loadRowsFromDB(self, clientOffset):
         with self.databaseFactory.createConnection() as db:
             rows = db.getData(
-                SqlQueries.selectFromTable(self._table, requestData="*", limit=self._sampleLimit, offset=self._loadedRecordsCount),
+                SqlQueries.selectFromTable(self._table, requestData="*", limit=self._sampleLimit, offset=clientOffset),
                 all=True
             )
         result = []

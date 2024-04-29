@@ -3,6 +3,7 @@ from database.tables import DatabaseTables
 
 class Constants:
     INIT_BOOKS_HELP_MSG = """Загрузка данных в справочники."""
+    RELOAD_BOOKS_HELP_MSG = """Перезагрузка справочников."""
     INIT_DATABASE_HELP_MSG = """Инициализация базы данных."""
     TABLE_FOR_AUTHORZATION = DatabaseTables.USERS
     TABLE_ROLES = DatabaseTables.ROLES
