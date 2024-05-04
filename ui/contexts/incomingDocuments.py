@@ -2,9 +2,7 @@ from datetime import datetime
 from tkinter.ttk import Treeview, Scrollbar
 from customtkinter import (
     CTkFrame,
-    CTkLabel,
     CTkButton,
-    E,
     Y,
     TOP,
     BOTH,
@@ -20,11 +18,10 @@ from .context import Context
 from .popup.inputIncomingDocumentsWindow import InputIncomingDocumentsWindowContext
 from .consts import Constants
 from dataStructures.referenceBook import g_bookIncomingDocuments
-from ui.widgets import UserInfoWidget, PageNameWidget
+from ui.widgets import UserInfoWidget, PageNameWidget, CommandButtonsWidget
 
 
 class IncomingDocumentsWindowContext(Context):
-    # константы типов констекстов
     def __init__(self, window, data):
         super().__init__(window, data)
         self._referenceBook = g_bookIncomingDocuments
@@ -33,20 +30,15 @@ class IncomingDocumentsWindowContext(Context):
 
         UserInfoWidget(self.frame, g_user)
         PageNameWidget(self.frame)
-
-        self.buttonFrame = CTkFrame(self.frame)
-        self.buttonCreateDocument = CTkButton(self.buttonFrame, text=Constants.BUTTON_CREATE, font=Constants.FONT, command=self._onCreateDocument)
-        self.buttonSearch = CTkButton(self.buttonFrame, text=Constants.BUTTON_SEARCH, font=Constants.FONT)
-        self.buttonRemove = CTkButton(self.buttonFrame, text=Constants.BUTTON_DELETE, font=Constants.FONT)
-        self.buttonCreateDocument.grid(row=0, column=0, padx=10, pady=10)
-        self.buttonSearch.grid(row=0, column=1, padx=10, pady=10)
-        self.buttonRemove.grid(row=0, column=2, padx=10, pady=10)
-        self.buttonFrame.grid(row=0, column=2, pady=10, padx=10)
-
-        self.exitFrame = CTkFrame(self.frame)
-        self.buttonBack = CTkButton(self.exitFrame, text=Constants.BUTTON_BACK, font=Constants.FONT, command=self._onButtonBack)
-        self.buttonBack.pack(padx=10, pady=10)
-        self.exitFrame.grid(row=0, column=3, padx=10, pady=10, sticky=E)
+        CommandButtonsWidget(
+            self.frame,
+            commands={
+                "create": self._onButtonCreateClicked,
+                "search": self._onButtonSearchClicked,
+                "remove": self._onButtonRemoveClicked,
+                "back": self._onButtonBackClicked
+            }
+        )
 
         self.frame.pack(fill=Y, padx=10, pady=10)
 
@@ -72,7 +64,22 @@ class IncomingDocumentsWindowContext(Context):
         self.treeScroll.pack(side=RIGHT, fill=Y)
         self.tree.pack(side=LEFT, fill=BOTH, expand=True)
 
-    def _onButtonBack(self):
+    def _onButtonCreateClicked(self):
+        self._window.openTopLevel(
+            InputIncomingDocumentsWindowContext,
+            {
+                "name": Constants.POPUP_WINDOW_NAME_INPUT_INCOMING_DOCUMENT,
+                "command": self._saveDocument
+            }
+        )
+
+    def _onButtonSearchClicked(self):
+        ...
+
+    def _onButtonRemoveClicked(self):
+        ...
+
+    def _onButtonBackClicked(self):
         window = self._window
         self.clear()
         window.returnToPrevious()
@@ -81,15 +88,6 @@ class IncomingDocumentsWindowContext(Context):
         rows = self._referenceBook.loadRows()
         if rows is not None:
             self.displayRows(rows)
-
-    def _onCreateDocument(self):
-        self._window.openTopLevel(
-            InputIncomingDocumentsWindowContext,
-            {
-                "name": Constants.POPUP_WINDOW_NAME_INPUT_INCOMING_DOCUMENT,
-                "command": self._saveDocument
-            }
-        )
 
     def _saveDocument(self, row):
         self._window.topLevelWindow.close()

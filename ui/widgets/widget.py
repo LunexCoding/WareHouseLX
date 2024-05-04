@@ -24,9 +24,9 @@ class BaseWidget(CTkBaseClass):
                 padx, pady = markup.padx, markup.pady
                 markup.element.pack(padx=padx, pady=pady)
             elif markup.type == TYPES_UI_MARKUP.GRID:
-                padx, pady = markup.padx, markup.pady
+                padx, pady, sticky = markup.padx, markup.pady, markup.sticky
                 row, column = markup.row, markup.column
-                markup.element.grid(padx=padx, pady=pady, row=row, column=column)
+                markup.element.grid(padx=padx, pady=pady, sticky=sticky, row=row, column=column)
 
     @property
     def visibility(self):

@@ -22,4 +22,4 @@ class TkinterMarkup:
         return self.NamedTuple(**allKwargs)
 
 
-MARCUP = TkinterMarkup('Markup', ["element", "type"], padx=None, pady=None, row=None, column=None)
+MARCUP = TkinterMarkup('Markup', ["element", "type"], padx=None, pady=None, row=None, column=None, sticky=None)
