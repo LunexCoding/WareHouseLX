@@ -10,3 +10,12 @@ class Constants:
         "Comment": {"text": "Комментарий", "size": 150}
     }
     DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+    PAGE_MAIN = "Главная"
+    PAGE_INCOMING_DOCUMENTS = "Документы прихода"
+    BUTTON_CREATE = "Создать"
+    BUTTON_SEARCH = "Найти"
+    BUTTON_DELETE = "Удалить"
+    BUTTON_BACK = "Назад"
+    BUTTON_EXIT = "Выход"
+    BUTTON_LOAD_MORE = "Загрузить еще"
+    POPUP_WINDOW_NAME_INPUT_INCOMING_DOCUMENT = "Создание документа прихода"

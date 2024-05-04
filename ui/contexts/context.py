@@ -1,3 +1,9 @@
+class CONTEXT_TYPES:
+    INPUT = 0
+    EDIT = 1
+    INFO = 2
+
+
 class Context:
     def __init__(self, window, data):
         self._window = window

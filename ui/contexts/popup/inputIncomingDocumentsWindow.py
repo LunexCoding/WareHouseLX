@@ -11,7 +11,8 @@ class InputIncomingDocumentsWindowContext(Context):
 
         name = data.get("Name", "Popup Window")
         window.title(name)
-        window.geometry("200x500")
+        window.geometry("200x270")
+        window.resizable(False, False)
         window.focus()
 
         self.frame = CTkFrame(window)
