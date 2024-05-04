@@ -1,3 +1,3 @@
-from .user import UserInfoWidget
-from .pageName import PageNameWidget
 from .commandButtons import CommandButtonsWidget
+from .pageName import PageNameWidget
+from .user import UserInfoWidget

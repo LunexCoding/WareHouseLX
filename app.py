@@ -1,9 +1,8 @@
 import threading
 
-from ui.windows import MainWindow
 from connection import g_socket
 from tools.logger import logger
-
+from ui.windows import MainWindow
 
 _log = logger.getLogger(__name__)
 

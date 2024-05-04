@@ -1,9 +1,8 @@
 from commands.center import g_commandCenter
 from commands.consts import Constants
-from commands.status import COMMAND_STATUS
 from commands.roles import Roles
+from commands.status import COMMAND_STATUS
 from tools.logger import logger
-
 
 _log = logger.getLogger(__name__)
 

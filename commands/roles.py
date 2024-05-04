@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-
 ROLE = namedtuple("Role", ["Guest", "User", "Admin"])
 
 

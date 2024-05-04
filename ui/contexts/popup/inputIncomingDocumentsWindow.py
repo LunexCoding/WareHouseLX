@@ -1,8 +1,10 @@
 from datetime import datetime
-from customtkinter import CTkLabel, CTkEntry, CTkFrame, CTkButton
+
+from customtkinter import CTkButton, CTkEntry, CTkFrame, CTkLabel
+
+from ui.contexts.context import Context
 
 from .consts import Constants
-from ui.contexts.context import Context
 
 
 class InputIncomingDocumentsWindowContext(Context):

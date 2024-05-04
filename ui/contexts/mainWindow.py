@@ -1,15 +1,11 @@
-from customtkinter import (
-    CTkButton,
-    CTkLabel,
-    CTkFrame,
-    Y
-)
+from customtkinter import CTkButton, CTkFrame, Y
 
+from ui.widgets import PageNameWidget, UserInfoWidget
+from user import g_user
+
+from .consts import Constants
 from .context import Context
 from .incomingDocuments import IncomingDocumentsWindowContext
-from ui.widgets import UserInfoWidget, PageNameWidget
-from .consts import Constants
-from user import g_user
 
 
 class MainWindowContext(Context):

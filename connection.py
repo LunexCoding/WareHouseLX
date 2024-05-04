@@ -1,5 +1,5 @@
-import socket
 import json
+import socket
 
 from settingsConfig import g_settingsConfig
 from tools.tables import DatabaseTables

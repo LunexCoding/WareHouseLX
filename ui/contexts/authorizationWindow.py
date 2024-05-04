@@ -1,11 +1,11 @@
 from customtkinter import CTkButton, CTkEntry, CTkLabel
 
-from .context import Context
-from .consts import Constants
-from .mainWindow import MainWindowContext
-from user import g_user
 from tools.logger import logger
+from user import g_user
 
+from .consts import Constants
+from .context import Context
+from .mainWindow import MainWindowContext
 
 _log = logger.getLogger(__name__)
 

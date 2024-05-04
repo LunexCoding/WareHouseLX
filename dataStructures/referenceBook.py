@@ -1,6 +1,6 @@
 from commands.center import g_commandCenter
-from commands.status import COMMAND_STATUS
 from commands.consts import Constants
+from commands.status import COMMAND_STATUS
 from tools.tables import DatabaseTables
 
 

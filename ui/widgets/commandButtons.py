@@ -1,8 +1,9 @@
-from customtkinter import CTkFrame, CTkButton, E
+from customtkinter import CTkButton, CTkFrame, E
 
-from .widget import BaseWidget
-from .markup import TYPES_UI_MARKUP, MARCUP
 from ui.contexts.consts import Constants
+
+from .markup import MARCUP, TYPES_UI_MARKUP
+from .widget import BaseWidget
 
 
 class CommandButtonsWidget(BaseWidget):
