@@ -20,8 +20,7 @@ from .context import Context
 from .popup.inputIncomingDocumentsWindow import InputIncomingDocumentsWindowContext
 from .consts import Constants
 from dataStructures.referenceBook import g_bookIncomingDocuments
-from ui.widgets.user import UserInfoWidget
-from ui.widgets.pageName import PageNameWidget
+from ui.widgets import UserInfoWidget, PageNameWidget
 
 
 class IncomingDocumentsWindowContext(Context):
@@ -32,8 +31,8 @@ class IncomingDocumentsWindowContext(Context):
 
         self.frame = CTkFrame(window)
 
-        UserInfoWidget(self.frame, g_user).show()
-        pageNameWidget = PageNameWidget(self.frame)
+        UserInfoWidget(self.frame, g_user)
+        PageNameWidget(self.frame)
 
         self.buttonFrame = CTkFrame(self.frame)
         self.buttonCreateDocument = CTkButton(self.buttonFrame, text=Constants.BUTTON_CREATE, font=Constants.FONT, command=self._onCreateDocument)

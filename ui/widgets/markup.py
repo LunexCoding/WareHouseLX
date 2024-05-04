@@ -7,19 +7,19 @@ class TYPES_UI_MARKUP:
 
 
 class TkinterMarkup:
-    def __init__(self, typename, required_fields, **kwargs):
+    def __init__(self, typename, requiredFields, **kwargs):
         self.typename = typename
-        self.fields = tuple(required_fields) + tuple(kwargs.keys())
+        self.fields = tuple(requiredFields) + tuple(kwargs.keys())
         self.defaults = kwargs
         self.NamedTuple = namedtuple(typename, self.fields)
 
     def __call__(self, **kwargs):
-        all_kwargs = self.defaults.copy()
-        all_kwargs.update(kwargs)
-        missing_fields = [field for field in self.fields if field not in all_kwargs]
-        if missing_fields and len(missing_fields) > len(self.fields) - len(self.defaults):
+        allKwargs = self.defaults.copy()
+        allKwargs.update(kwargs)
+        missingFields = [field for field in self.fields if field not in allKwargs]
+        if missingFields and len(missingFields) > len(self.fields) - len(self.defaults):
             raise ValueError("Not all required fields are provided.")
-        return self.NamedTuple(**all_kwargs)
+        return self.NamedTuple(**allKwargs)
 
 
 MARCUP = TkinterMarkup('Markup', ["element", "type"], padx=None, pady=None, row=None, column=None)

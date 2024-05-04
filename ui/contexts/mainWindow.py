@@ -7,6 +7,7 @@ from customtkinter import (
 
 from .context import Context
 from .incomingDocuments import IncomingDocumentsWindowContext
+from ui.widgets import UserInfoWidget, PageNameWidget
 from .consts import Constants
 from user import g_user
 
@@ -17,17 +18,8 @@ class MainWindowContext(Context):
 
         self.frame = CTkFrame(window)
 
-        self.userFrame = CTkFrame(self.frame)
-        self.userRoleLabel = CTkLabel(self.userFrame, text=g_user.role, font=Constants.FONT)
-        self.userFullnameLabel = CTkLabel(self.userFrame, text=g_user.fullname, font=Constants.FONT)
-        self.userRoleLabel.pack(padx=10, pady=10)
-        self.userFullnameLabel.pack(padx=10, pady=10)
-        self.userFrame.grid(row=0, column=0, padx=10, pady=10)
-
-        self.pageNameFrame = CTkFrame(self.frame)
-        self.pageNameLabel = CTkLabel(self.pageNameFrame, text=Constants.PAGE_MAIN, font=Constants.FONT)
-        self.pageNameLabel.pack(padx=10, pady=10)
-        self.pageNameFrame.grid(row=0, column=1, padx=10, pady=10)
+        UserInfoWidget(self.frame, g_user)
+        PageNameWidget(self.frame)
 
         self.buttonFrame = CTkFrame(self.frame)
         self.buttonParish = CTkButton(self.buttonFrame, text=Constants.PAGE_INCOMING_DOCUMENTS, font=Constants.FONT, command=self._onButtonParish)
