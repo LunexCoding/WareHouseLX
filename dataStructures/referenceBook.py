@@ -39,4 +39,4 @@ class _ReferenceBook:
         return self._rows
 
 
-g_bookIncomingDocuments = _ReferenceBook(DatabaseTables.INCOMING_DOCUMENTS)
+g_ordersBook = _ReferenceBook(DatabaseTables.ORDERS)

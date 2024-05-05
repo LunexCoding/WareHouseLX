@@ -2,7 +2,7 @@ from datetime import datetime
 
 from customtkinter import END, CTkButton, CTkFrame, Y
 
-from dataStructures.referenceBook import g_bookIncomingDocuments
+from dataStructures.referenceBook import g_ordersBook
 from ui.widgets import CommandButtonsWidget, PageNameWidget, TableWidget, UserInfoWidget
 from user import g_user
 
@@ -14,12 +14,12 @@ from .popup.inputIncomingDocumentsWindow import InputIncomingDocumentsWindowCont
 class IncomingDocumentsWindowContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
-        self._referenceBook = g_bookIncomingDocuments
+        self._referenceBook = g_ordersBook
 
         self.frame = CTkFrame(window)
 
         UserInfoWidget(self.frame, g_user)
-        PageNameWidget(self.frame)
+        PageNameWidget(self.frame, Constants.PAGE_ORDERS)
         CommandButtonsWidget(
             self.frame,
             commands={
@@ -32,9 +32,9 @@ class IncomingDocumentsWindowContext(Context):
 
         self.frame.pack(fill=Y, padx=10, pady=10)
 
-        self.table = TableWidget(window, Constants.INCOMING_AND_OUTGOING_WINDOWS_TREE_OPTIONS).init()
+        self.table = TableWidget(window, Constants.ORDERS_TREE_OPTIONS).init()
 
-        self.buttonLoad = CTkButton(window, text=Constants.BUTTON_LOAD_MORE, font=Constants.FONT, command=self._onButtonLoad)
+        self.buttonLoad = CTkButton(window, text=Constants.BUTTON_LOAD_MORE, font=Constants.FONT, command=self._onButtonLoadClicked)
         self.buttonLoad.pack(padx=20, pady=20)
         self._loadRows()
 
@@ -43,7 +43,7 @@ class IncomingDocumentsWindowContext(Context):
             InputIncomingDocumentsWindowContext,
             {
                 "name": Constants.POPUP_WINDOW_NAME_INPUT_INCOMING_DOCUMENT,
-                "command": self._saveDocument
+                "command": self._save
             }
         )
 
@@ -58,12 +58,12 @@ class IncomingDocumentsWindowContext(Context):
         self.clear()
         window.returnToPrevious()
 
-    def _onButtonLoad(self):
+    def _onButtonLoadClicked(self):
         rows = self._referenceBook.loadRows()
         if rows is not None:
             self.displayRows(rows)
 
-    def _saveDocument(self, row):
+    def _save(self, row):
         self._window.topLevelWindow.close()
         result = self._referenceBook.insertRow(row)
         if result is not None:

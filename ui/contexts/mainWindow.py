@@ -15,10 +15,10 @@ class MainWindowContext(Context):
         self.frame = CTkFrame(window)
 
         UserInfoWidget(self.frame, g_user)
-        PageNameWidget(self.frame)
+        PageNameWidget(self.frame, Constants.PAGE_MAIN)
 
         self.buttonFrame = CTkFrame(self.frame)
-        self.buttonParish = CTkButton(self.buttonFrame, text=Constants.PAGE_INCOMING_DOCUMENTS, font=Constants.FONT, command=self._onButtonParish)
+        self.buttonParish = CTkButton(self.buttonFrame, text=Constants.PAGE_ORDERS, font=Constants.FONT, command=self._onButtonParish)
         self.buttonParish.grid(row=0, column=1, padx=10, pady=10)
         self.buttonFrame.grid(row=0, column=1, padx=10, pady=10)
 
