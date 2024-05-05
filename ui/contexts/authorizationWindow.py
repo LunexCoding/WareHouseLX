@@ -7,6 +7,7 @@ from .consts import Constants
 from .context import Context
 from .mainWindow import MainWindowContext
 
+
 _log = logger.getLogger(__name__)
 
 

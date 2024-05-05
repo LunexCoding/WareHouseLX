@@ -1,8 +1,7 @@
 from datetime import datetime
 from tkinter.ttk import Scrollbar, Treeview
 
-from customtkinter import (BOTH, CENTER, END, LEFT, RIGHT, TOP, VERTICAL,
-                           CTkButton, CTkFrame, Y)
+from customtkinter import BOTH, CENTER, END, LEFT, RIGHT, TOP, VERTICAL, CTkButton, CTkFrame, Y
 
 from dataStructures.referenceBook import g_bookIncomingDocuments
 from ui.widgets import CommandButtonsWidget, PageNameWidget, UserInfoWidget
@@ -10,8 +9,7 @@ from user import g_user
 
 from .consts import Constants
 from .context import Context
-from .popup.inputIncomingDocumentsWindow import \
-    InputIncomingDocumentsWindowContext
+from .popup.inputIncomingDocumentsWindow import InputIncomingDocumentsWindowContext
 
 
 class IncomingDocumentsWindowContext(Context):
