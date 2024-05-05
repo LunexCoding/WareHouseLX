@@ -22,7 +22,9 @@ class BaseWidget(CTkBaseClass):
         for markup in self._uiElements:
             if markup.type == TYPES_UI_MARKUP.PACK:
                 padx, pady = markup.padx, markup.pady
-                markup.element.pack(padx=padx, pady=pady)
+                side, fill = markup.side, markup.fill
+                expand = markup.expand
+                markup.element.pack(padx=padx, pady=pady, side=side, fill=fill, expand=expand)
             elif markup.type == TYPES_UI_MARKUP.GRID:
                 padx, pady, sticky = markup.padx, markup.pady, markup.sticky
                 row, column = markup.row, markup.column
