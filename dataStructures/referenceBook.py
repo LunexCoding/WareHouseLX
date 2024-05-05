@@ -145,21 +145,21 @@ class ReferenceBookFactory:
 g_referenceBookFactory = ReferenceBookFactory(DatabaseConnectionFactory(g_settingsConfig.DatabaseSettings["fullPath"]))
 
 g_usersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.USERS)
-g_userRoles = g_referenceBookFactory.createReferenceBook(DatabaseTables.ROLES)
-g_incomingDocumentsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.INCOMING_DOCUMENTS)
-g_incomingDocumentDetailsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.INCOMING_DOCUMENT_DETAILS)
-g_warehouseBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.WAREHOUSE)
-g_outgoingDocuments = g_referenceBookFactory.createReferenceBook(DatabaseTables.OUTGOING_DOCUMENTS)
-g_outgoingDocumentDetailsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.OUTGOING_DOCUMENTS_DETAILS)
-g_warehouseOutgoingDetailsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.WAREHOUSE_OUTGOING_DETAILS)
+g_userRolesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ROLES)
+g_clientsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.CLIENTS)
+g_workshopsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.WORKSHOPS)
+g_stagesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.STAGES)
+g_ordersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ORDERS)
+g_orderDetailsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ORDER_DETAILS)
+g_machinesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.MACHINES)
 
 g_referenceBooks = [
     g_usersBook,
-    g_userRoles,
-    g_incomingDocumentsBook,
-    g_incomingDocumentDetailsBook,
-    g_warehouseBook,
-    g_outgoingDocuments,
-    g_outgoingDocumentDetailsBook,
-    g_warehouseOutgoingDetailsBook
+    g_userRolesBook,
+    g_clientsBook,
+    g_workshopsBook,
+    g_stagesBook,
+    g_ordersBook,
+    g_orderDetailsBook,
+    g_machinesBook
 ]
