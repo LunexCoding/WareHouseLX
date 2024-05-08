@@ -14,7 +14,7 @@ class ServiceCommand(BaseCommand):
 
 
 class InitBatabase(ServiceCommand):
-    COMMAND_NAME = "init_db"
+    COMMAND_NAME = Constants.SERVER_COMMAND_INIT_DATABASE
 
     def __init__(self):
         super().__init__()
@@ -25,7 +25,7 @@ class InitBatabase(ServiceCommand):
 
 
 class InitBooks(ServiceCommand):
-    COMMAND_NAME = "init"
+    COMMAND_NAME = Constants.SERVER_COMMAND_INIT_BOOKS
 
     def __init__(self):
         super().__init__()

@@ -1,5 +1,4 @@
 import time
-from datetime import datetime
 
 from .consts import Constants
 from .status import COMMAND_STATUS
@@ -8,6 +7,7 @@ from .accessLevel import ACCESS_LEVEL, ROLES
 from .processСonditions import ProcessConditions
 from dataStructures.referenceBook import g_referenceBooks
 from tools.logger import logger
+from tools.dateConverter import convertTimestampToDate, convertDateToTimestamp
 
 
 _log = logger.getLogger(__name__)
@@ -36,7 +36,7 @@ class ClientCommand(BaseCommand):
 
 
 class SearchRows(ClientCommand):
-    COMMAND_NAME = "search"
+    COMMAND_NAME = Constants.COMMAND_SEARCH
 
     def __init__(self):
         super().__init__()
@@ -68,17 +68,17 @@ class SearchRows(ClientCommand):
 
 
 class AddRow(ClientCommand):
-    COMMAND_NAME = "add"
+    COMMAND_NAME = Constants.COMMAND_ADD
 
     def __init__(self):
         super().__init__()
         self.msgHelp = None
         self._allowedFlags = {
-            "-t": VALUE_TYPE.STRING,
             "-c": VALUE_TYPE.LIST,
-            "-v": VALUE_TYPE.LIST
+            "-v": VALUE_TYPE.LIST,
+            "-t": VALUE_TYPE.STRING
         }
-        self._argsWithoutFlagsOrder = ["-t", "-c", "-v"]
+        self._argsWithoutFlagsOrder = ["-c", "-v", "-t"]
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
 
@@ -93,17 +93,17 @@ class AddRow(ClientCommand):
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
                 columns = args["-c"]
                 if len(columns) == 1 and columns[0] == "*":
-                    columns = referenceBook.columnsForInsertion.copy()
+                    columns = referenceBook.columns.copy()
                 values = args["-v"]
 
                 row = dict(zip(columns, values))
-                row["CreationDate"] = datetime.fromtimestamp(float(row["CreationDate"])).strftime(Constants.DATETIME_FORMAT)
+                row["CreationDate"] = convertTimestampToDate(row["CreationDate"])
                 rowID = referenceBook.addRow(row)
                 if rowID is not None:
                     status, result = SearchRows().execute(client, f"{table} ID={rowID}")
                     if status == COMMAND_STATUS.EXECUTED:
-                        result["CreationDate"] = datetime.strptime(result["CreationDate"], Constants.DATETIME_FORMAT).timestamp()
-                        return COMMAND_STATUS.EXECUTED, result
+                        result["CreationDate"] = convertDateToTimestamp(result["CreationDate"])
+                        return COMMAND_STATUS.EXECUTED, [result]
 
                     return COMMAND_STATUS.FAILED, None
                 return COMMAND_STATUS.FAILED, None
@@ -113,7 +113,7 @@ class AddRow(ClientCommand):
 
 
 class Authorization(ClientCommand):
-    COMMAND_NAME = "authorization"
+    COMMAND_NAME = Constants.COMMAND_AUTHORIZATION
 
     def __init__(self):
         super().__init__()
@@ -146,7 +146,7 @@ class Authorization(ClientCommand):
                     del user["Password"]
                     del user["RoleID"]
                     _log.debug(f"Client is authorized -> ID<{user['ID']}>, fullname: {user['Fullname']}")
-                    return COMMAND_STATUS.EXECUTED, user
+                    return COMMAND_STATUS.EXECUTED, [user]
                 return COMMAND_STATUS.FAILED, Constants.USER_NOT_FOUND
             return executionPermission
 
@@ -172,7 +172,7 @@ class Authorization(ClientCommand):
 
 
 class LoadRows(ClientCommand):
-    COMMAND_NAME = "load"
+    COMMAND_NAME = Constants.COMMAND_LOAD
 
     def __init__(self):
         super().__init__()
@@ -201,7 +201,7 @@ class LoadRows(ClientCommand):
 
 
 class LongRunningCommand(ClientCommand):
-    COMMAND_NAME = "long_run"
+    COMMAND_NAME = Constants.COMMAND_LONG
 
     def __init__(self):
         super().__init__()
@@ -209,7 +209,7 @@ class LongRunningCommand(ClientCommand):
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.USER
 
-    def execute(self, client=None, commandArgs=None):
+    def execute(self, client=None, commandArgs=None, table=None):
         # Имитация долгой работы на 10 секунд
         executionPermission = self._checkExecutionPermission(client)
         if executionPermission[0] == COMMAND_STATUS.EXECUTED:

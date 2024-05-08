@@ -3,7 +3,6 @@ import threading
 
 from client import Client
 from commands.status import COMMAND_STATUS
-from tools.jsonTools import JsonTools
 from tools.logger import logger
 from consts import Constants
 
@@ -38,7 +37,6 @@ class Socket:
                 if data.strip():
                     _log.debug(f"Received: {data}")
                     self.processCommand(self.clients.index(client), data)
-
             except Exception as e:
                 _log.error(f"Error handling client: {e}")
                 break
@@ -48,24 +46,23 @@ class Socket:
         clientSocket = client.socket
 
         commandString = command.split()
-        commandName = commandString.pop(0)
+        commandID = int(commandString.pop(0))
         argsCommand = " ".join(commandString)
-        commandObj = self.commandCenter.searchCommand(commandName)
+        commandObj, args = self.commandCenter.searchCommand(commandID)
         if commandObj is not None:
+            if args is not None:
+                argsCommand += args
             result = commandObj.execute(client, argsCommand)
-            result = {
-                "Command": command,
-                "Status": result[0],
-                "Result": result[1]
-            }
+            status = result[0]
+            if result[1] is not None:
+                data = '|'.join(' '.join(map(str, record.values())) for record in result[1])
+                response = Constants.RESPONSE_STRING.format(commandID, status, data)
+            else:
+                data = None
+                response = Constants.RESPONSE_STRING.format(commandID, status, data)
         else:
-            _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(commandName))
-            result = {
-                "Command": command,
-                "Status": COMMAND_STATUS.FAILED,
-                "Result": Constants.COMMAND_NOT_FOUND_MSG.format(commandName)
-            }
-        response = JsonTools.serialize(result)
+            _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(commandID))
+            response = Constants.RESPONSE_STRING.format(commandID, COMMAND_STATUS.FAILED, Constants.COMMAND_NOT_FOUND_MSG.format(commandID))
         self.sendToClient(clientSocket, response)
 
     @staticmethod

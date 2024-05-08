@@ -2,6 +2,7 @@ from database.tables import DatabaseTables, ColumnsForInsertion
 from database.queries import SqlQueries
 from database.database import DatabaseConnectionFactory
 from settingsConfig import g_settingsConfig
+from tools.dateConverter import convertDateToTimestamp
 
 
 class _ReferenceBook:
@@ -39,7 +40,10 @@ class _ReferenceBook:
             )
         result = []
         for row in rows:
-            result.append({self._columns[i]: row[i] for i in range(len(self._columns))})
+            rowData = {}
+            for i, column in enumerate(self._columns):
+                rowData[column] = convertDateToTimestamp(row[i]) if "Date" in column else row[i]
+            result.append(rowData)
         return result
 
     def addRow(self, row):
@@ -56,7 +60,7 @@ class _ReferenceBook:
         with self.databaseFactory.createConnection() as db:
             db.execute(
                 SqlQueries.insertIntoTable(self._table, columns),
-                data=list(row.values())
+                data=list([row[column] for column in columns])
             )
 
     def _checkNextRowExists(self):
