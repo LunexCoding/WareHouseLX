@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from customtkinter import END, CTkButton, CTkFrame, Y
 
 from dataStructures.referenceBook import g_ordersBook
@@ -67,7 +65,6 @@ class IncomingDocumentsWindowContext(Context):
         self._window.topLevelWindow.close()
         result = self._referenceBook.insertRow(row)
         if result is not None:
-            result["CreationDate"] = datetime.fromtimestamp(result["CreationDate"]).strftime(Constants.DATETIME_FORMAT)
             self.displayRows([result])
 
     def _loadRows(self):
@@ -80,5 +77,4 @@ class IncomingDocumentsWindowContext(Context):
     def displayRows(self, rows):
         if rows is not None:
             for row in rows:
-                values = [str(value) for value in row.values()]
-                self.table.insert("", END, values=values)
+                self.table.insert("", END, values=row)

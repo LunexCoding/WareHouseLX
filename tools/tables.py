@@ -10,4 +10,3 @@ class DatabaseTables(StrEnum):
     ORDERS = "Заказы"
     ORDER_DETAILS = "Детали_заказа"
     MACHINES = "Машины"
-

@@ -1,8 +1,6 @@
-import json
 import socket
 
 from settingsConfig import g_settingsConfig
-from tools.tables import DatabaseTables
 
 
 class _Socket:
@@ -22,7 +20,7 @@ class _Socket:
     def sendCommand(self, command):
         if not self.clientSocket:
             raise ConnectionError("Client is not connected. Call the connect() method first.")
-        self.clientSocket.sendall(command.encode())
+        self.clientSocket.sendall(str(command).encode())
 
     def receiveResponse(self):
         if not self.clientSocket:
@@ -30,16 +28,16 @@ class _Socket:
         receivedData = ""
         while True:
             response = self.clientSocket.recv(1024).decode()
-            if response[-1] == "}":
+            if response[-1] != " ":
                 receivedData += response
                 break
             receivedData += response
-        return json.loads(receivedData)
+        return receivedData
 
     def sendAndReceiveSync(self, command):
         self.sendCommand(command)
         response = self.receiveResponse()
-        return response
+        return response.split()
 
     def sendAndReceiveAsync(self, commands):
         self.clearResponses()
@@ -58,35 +56,3 @@ g_socket = _Socket(
     g_settingsConfig.ServerSettings["host"],
     g_settingsConfig.ServerSettings["port"]
 )
-
-
-if __name__ == "__main__":
-    host = 'localhost'
-    port = 9999
-
-    client1 = _Socket(host, port)
-    client2 = _Socket(host, port)
-
-    client1.connect()
-    client2.connect()
-
-    commands1 = [
-        "authorization admin admin",
-        f"add {DatabaseTables.USERS} [*] [test,test,2,test]",
-        f"search {DatabaseTables.USERS} RoleID=2"
-    ]
-    commands2 = [
-        "authorization user user",
-        f"add {DatabaseTables.USERS} [*] [test1,test1,2,test1]",
-        f"search {DatabaseTables.USERS} RoleID=2"
-    ]
-
-    responses1 = client1.sendAndReceiveAsync(commands1)
-    responses2 = client2.sendAndReceiveAsync(commands2)
-
-    sortedResponses1 = [response for response in responses1]
-    sortedResponses2 = [response for response in responses2]
-
-    print("Responses from clientApp 1:", sortedResponses1)
-    print("Responses from clientApp 2:", sortedResponses2)
-

@@ -9,7 +9,6 @@ class Constants:
         "CreationDate": {"text": "Дата создания", "size": 100},
         "Comment": {"text": "Комментарий", "size": 150}
     }
-    DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
     PAGE_MAIN = "Главная"
     PAGE_ORDERS = "Заказы"
     BUTTON_CREATE = "Создать"
