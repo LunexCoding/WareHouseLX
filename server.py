@@ -8,10 +8,7 @@ from consts import Constants
 
 
 _log = logger.getLogger(__name__)
-LAUNCH_COMMANDS = [
-    Constants.COMMAND_INIT_DATABASE,
-    Constants.COMMAND_INIT
-]
+LAUNCH_COMMANDS = [-1, -2]
 
 
 class Server:
@@ -22,9 +19,9 @@ class Server:
     def start(self):
         self.running = True
         for command in LAUNCH_COMMANDS:
-            commandObj = g_commandCenter.searchCommand(command)
+            commandObj, data = g_commandCenter.searchCommand(command)
             if commandObj is not None:
-                commandObj.execute()
+                commandObj.execute(data)
             else:
                 _log.error(Constants.COMMAND_NOT_FOUND_MSG.format(command))
 

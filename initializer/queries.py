@@ -16,73 +16,69 @@ class SqlQueries:
             `Password` VARCHAR(255),
             `RoleID` INTEGER,
             `Fullname` VARCHAR(255),
-            FOREIGN KEY (RoleID) REFERENCES {DatabaseTables.ROLES} (ID) ON DELETE SET NULL
+            FOREIGN KEY (`RoleID`) REFERENCES {DatabaseTables.ROLES}(`ID`)
         );
     """
-    createTableIncomingDocuments = f"""
-        CREATE TABLE IF NOT EXISTS {DatabaseTables.INCOMING_DOCUMENTS} (
-            ID INTEGER PRIMARY KEY,
-            Counterparty VARCHAR(255) UNIQUE,
-            ContractNumber INTEGER,
-            Phone VARCHAR(11),
-            CreationDate DATE,
-            Comment TEXT
+    createTableClients = f"""
+        CREATE TABLE IF NOT EXISTS {DatabaseTables.CLIENTS} (
+            `ID` INTEGER PRIMARY KEY,
+            `Name` VARCHAR(255),
+            `Email` VARCHAR(255),
+            `Phone` VARCHAR(255)
         );
     """
-    createTableIncomingDocumentDetails = f"""
-        CREATE TABLE IF NOT EXISTS {DatabaseTables.INCOMING_DOCUMENT_DETAILS} (
-            ID INTEGER PRIMARY KEY,
-            DocumentNumber INTEGER,
-            CargoID INTEGER,
-            CargoName TEXT,
-            CargoDescription TEXT,
-            PackagingType TEXT,
-            Quantity INTEGER,
-            Price REAL,
-            CreationDate DATE,
-            FOREIGN KEY (DocumentNumber) REFERENCES {DatabaseTables.INCOMING_DOCUMENTS}(ID),
-            CONSTRAINT unique_document_cargo UNIQUE (DocumentNumber, CargoID),
-            UNIQUE(DocumentNumber, CargoName)
+    createTableWorkshops = f"""
+            CREATE TABLE IF NOT EXISTS {DatabaseTables.WORKSHOPS} (
+                `ID` INTEGER PRIMARY KEY,
+                `Name` VARCHAR(255)
+            );
+        """
+    createTableStages = f"""
+            CREATE TABLE IF NOT EXISTS {DatabaseTables.STAGES} (
+                `ID` INTEGER PRIMARY KEY,
+                `Name` VARCHAR(255),
+                `Description` TEXT,
+                `WorkshopID` INTEGER,
+                FOREIGN KEY (`WorkshopID`) REFERENCES {DatabaseTables.WORKSHOPS}(`ID`)
+            );
+        """
+    createTableOrders = f"""
+        CREATE TABLE IF NOT EXISTS {DatabaseTables.ORDERS} (
+            `ID` INTEGER PRIMARY KEY,
+            `ClientID` INTEGER,
+            `ContractNumber` INTEGER,
+            `CreationDate` TEXT,
+            `Comment` TEXT,
+            FOREIGN KEY (`ClientID`) REFERENCES {DatabaseTables.CLIENTS}(`ID`)
         );
     """
-    createTableWarehouse = f"""
-        CREATE TABLE IF NOT EXISTS {DatabaseTables.WAREHOUSE} (
-            ID INTEGER PRIMARY KEY,
-            DocumentID INTEGER,
-            CargoID INTEGER,
-            DateOfChange DATE
+    createTableOrderDetails = f"""
+        CREATE TABLE IF NOT EXISTS {DatabaseTables.ORDER_DETAILS} (
+            `ID` INTEGER PRIMARY KEY,
+            `OrderID` INTEGER,
+            `MachineID` INTEGER,
+            `Comment` TEXT,
+            `Status` TEXT,
+            FOREIGN KEY (`OrderID`) REFERENCES {DatabaseTables.ORDERS}(`ID`),
+            FOREIGN KEY (`MachineID`) REFERENCES {DatabaseTables.MACHINES}(`ID`)
         );
     """
-    createTableOutgoingDocuments = f"""
-        CREATE TABLE IF NOT EXISTS {DatabaseTables.OUTGOING_DOCUMENTS} (
-            ID INTEGER PRIMARY KEY,
-            Counterparty VARCHAR(255),
-            ContractNumber INTEGER,
-            Phone VARCHAR(11),
-            CreationDate DATE,
-            Comment TEXT
+    createTableMachines = f"""
+        CREATE TABLE IF NOT EXISTS {DatabaseTables.MACHINES} (
+            `ID` INTEGER PRIMARY KEY,
+            `Name` VARCHAR(255),
+            `Power` INTEGER,
+            `Speed` INTEGER,
+            `Direction` VARCHAR(255),
+            `Parameter1` VARCHAR(255),
+            `Parameter2` VARCHAR(255),
+            `StageID` INTEGER,
+            FOREIGN KEY (`StageID`) REFERENCES {DatabaseTables.STAGES}(`ID`)
         );
     """
-    createTableOutgoingDocumentDetails = f"""
-        CREATE TABLE IF NOT EXISTS {DatabaseTables.OUTGOING_DOCUMENTS_DETAILS} (
-            ID INTEGER PRIMARY KEY,
-            DocumentID INTEGER,
-            CargoID INTEGER,
-            DepartureDate DATE,
-            HoursOnWarehouse INTEGER
-        );
-    """
-    createTableWarehouseOutgoingDetails = f"""
-        CREATE TABLE IF NOT EXISTS {DatabaseTables.WAREHOUSE_OUTGOING_DETAILS} (
-            ID INTEGER PRIMARY KEY,
-            WarehouseID INTEGER,
-            OutgoingDetailsID INTEGER,
-            FOREIGN KEY (WarehouseID) REFERENCES Warehouse(ID),
-            FOREIGN KEY (OutgoingDetailsID) REFERENCES OutgoingDocumentDetails(ID)
-        );
-    """
+    # TRIGERS #
     createTriggerSetUserRole = f"""
-        CREATE TRIGGER IF NOT EXISTS update_role_to_default 
+        CREATE TRIGGER IF NOT EXISTS UpdateRoleToDefault
         AFTER UPDATE ON {DatabaseTables.USERS}
         WHEN OLD.RoleID = 1 AND NEW.RoleID IS NULL
         BEGIN
@@ -91,21 +87,12 @@ class SqlQueries:
             WHERE ID = OLD.ID;
         END;
     """
-    createTriggerIncrementDocumentNumber = f"""
-        CREATE TRIGGER IF NOT EXISTS increment_document_number
-        AFTER INSERT ON {DatabaseTables.INCOMING_DOCUMENTS}
+    createTriggerIncrementContractNumber = f"""
+        CREATE TRIGGER IF NOT EXISTS IncrementContractNumber
+        AFTER INSERT ON {DatabaseTables.ORDERS}
         BEGIN
-            UPDATE {DatabaseTables.INCOMING_DOCUMENTS}
-            SET ContractNumber = (SELECT IFNULL(MAX(ContractNumber), 0) + 1 FROM {DatabaseTables.INCOMING_DOCUMENTS} WHERE Counterparty = NEW.Counterparty)
-            WHERE ID = NEW.ID;
-        END;
-    """
-    createTriggerIncrementCargoID = f"""
-        CREATE TRIGGER IF NOT EXISTS increment_cargo_id
-        AFTER INSERT ON {DatabaseTables.INCOMING_DOCUMENT_DETAILS}
-        BEGIN
-            UPDATE {DatabaseTables.INCOMING_DOCUMENT_DETAILS}
-            SET CargoID = (SELECT IFNULL(MAX(CargoID), 0) + 1 FROM {DatabaseTables.INCOMING_DOCUMENT_DETAILS} WHERE DocumentNumber = NEW.DocumentNumber)
+            UPDATE {DatabaseTables.ORDERS}
+            SET ContractNumber = (SELECT IFNULL(MAX(ContractNumber), 0) + 1 FROM {DatabaseTables.ORDERS} WHERE ClientID = NEW.ClientID)
             WHERE ID = NEW.ID;
         END;
     """

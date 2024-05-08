@@ -1,4 +1,3 @@
-from commands.status import COMMAND_STATUS
 from commands.accessLevel import ROLES
 
 
@@ -10,15 +9,25 @@ class Client:
         self._role = ROLES.GUEST
         self.isAuthorized = False
         self._fullname = None
+        self._offsetDictionary = {}
 
     def authorization(self, data):
         if isinstance(data, dict):
             self._userID = data["ID"]
-            self._role = ROLES.getRoleStatus(data["Role"])
+            self._role = data["Role"]
             self._fullname = data["Fullname"]
             self.isAuthorized = True
             return True
         return False
+
+    def updateOffset(self, table, offset):
+        if table in self._offsetDictionary:
+            self._offsetDictionary[table] = self._offsetDictionary[table] + offset
+        else:
+            self._offsetDictionary[table] = offset
+
+    def getOffset(self, table):
+        return self._offsetDictionary.get(table, 0)
 
     @property
     def socket(self):

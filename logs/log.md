@@ -1,21 +1,16 @@
 ```python
-[24-Apr-24 00:34] -> initializer.initializer -> [DEBUG]: The database already exists.
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Server listening on localhost:9999
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Connection from ('127.0.0.1', 53243)
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Received: authorization admin admin
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Connection from ('127.0.0.1', 53244)
-[24-Apr-24 00:34] -> commands.client -> [DEBUG]: Client is authorized -> ID<1>, fullname: None
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Response: {"Command": "authorization admin admin", "Status": 0, "Result": {"ID": 1, "Fullname": null, "Role": "Admin"}}
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Received: add Пользователи [*] [test,test,2,test]
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Response: {"Command": "add Пользователи [*] [test,test,2,test]", "Status": 0, "Result": null}
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Received: search Пользователи RoleID=2
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Response: {"Command": "search Пользователи RoleID=2", "Status": 0, "Result": [{"ID": 2, "Login": "user", "Password": "user", "RoleID": 2, "Fullname": null}, {"ID": 3, "Login": "test", "Password": "test", "RoleID": 2, "Fullname": "test"}]}
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Received: authorization user user
-[24-Apr-24 00:34] -> commands.client -> [DEBUG]: Client is authorized -> ID<2>, fullname: None
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Response: {"Command": "authorization user user", "Status": 0, "Result": {"ID": 2, "Fullname": null, "Role": "User"}}
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Received: add Пользователи [*] [test1,test1,2,test1]
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Response: {"Command": "add Пользователи [*] [test1,test1,2,test1]", "Status": 1, "Result": "Access error."}
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Received: search Пользователи RoleID=2
-[24-Apr-24 00:34] -> connection -> [DEBUG]: Response: {"Command": "search Пользователи RoleID=2", "Status": 0, "Result": [{"ID": 2, "Login": "user", "Password": "user", "RoleID": 2, "Fullname": null}, {"ID": 3, "Login": "test", "Password": "test", "RoleID": 2, "Fullname": "test"}]}
-[24-Apr-24 00:35] -> connection -> [DEBUG]: Stopping socket...
-[24-Apr-24 00:35] -> connection -> [DEBUG]: Socket stopped.
+[08-May-24 17:51] -> initializer.initializer -> [DEBUG]: The database already exists.
+[08-May-24 17:51] -> connection -> [DEBUG]: Server listening on localhost:9999
+[08-May-24 17:51] -> connection -> [DEBUG]: Connection from ('127.0.0.1', 64606)
+[08-May-24 17:51] -> connection -> [DEBUG]: Received: 0 admin admin
+[08-May-24 17:51] -> commands.client -> [DEBUG]: Client is authorized -> ID<1>, fullname: None
+[08-May-24 17:51] -> connection -> [DEBUG]: Response: 0 0 1 None 2
+[08-May-24 17:51] -> connection -> [DEBUG]: Received: 6
+[08-May-24 17:51] -> connection -> [DEBUG]: Response: 6 0 1 1 1 1715165295.0 1|2 2 1 1715165305.0 2
+[08-May-24 17:51] -> connection -> [DEBUG]: Received: 6
+[08-May-24 17:51] -> connection -> [DEBUG]: Response: 6 0 3 3 1 1715165394.0 3
+[08-May-24 17:51] -> connection -> [DEBUG]: Received: 20 [*] [None,3,None,1715165478.635998,2]
+[08-May-24 17:51] -> connection -> [DEBUG]: Response: 20 0 4 3 2 1715165478.0 2
+[08-May-24 17:51] -> connection -> [DEBUG]: Received: 6
+[08-May-24 17:51] -> connection -> [DEBUG]: Response: 6 0 4 3 2 1715165478.0 2
+[08-May-24 17:51] -> connection -> [DEBUG]: Client ('127.0.0.1', 64606) disconnected

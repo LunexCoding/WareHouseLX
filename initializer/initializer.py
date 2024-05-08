@@ -18,12 +18,12 @@ class Initializer:
         databaseCreationPipeline.addOperation(SqlQueries.applyingSettings)
         databaseCreationPipeline.addOperation(SqlQueries.createTableRoles)
         databaseCreationPipeline.addOperation(SqlQueries.createTableUsers)
-        databaseCreationPipeline.addOperation(SqlQueries.createTableIncomingDocuments)
-        databaseCreationPipeline.addOperation(SqlQueries.createTableIncomingDocumentDetails)
-        databaseCreationPipeline.addOperation(SqlQueries.createTableWarehouse)
-        databaseCreationPipeline.addOperation(SqlQueries.createTableOutgoingDocuments)
-        databaseCreationPipeline.addOperation(SqlQueries.createTableOutgoingDocumentDetails)
-        databaseCreationPipeline.addOperation(SqlQueries.createTableWarehouseOutgoingDetails)
+        databaseCreationPipeline.addOperation(SqlQueries.createTableClients)
+        databaseCreationPipeline.addOperation(SqlQueries.createTableWorkshops)
+        databaseCreationPipeline.addOperation(SqlQueries.createTableStages)
+        databaseCreationPipeline.addOperation(SqlQueries.createTableOrders)
+        databaseCreationPipeline.addOperation(SqlQueries.createTableOrderDetails)
+        databaseCreationPipeline.addOperation(SqlQueries.createTableMachines)
         databaseCreationPipeline.run()
 
     @staticmethod
@@ -31,8 +31,7 @@ class Initializer:
         _log.debug("Creating triggers...")
         triggersCreatePipeLine = DatabasePipeline()
         triggersCreatePipeLine.addOperation(SqlQueries.createTriggerSetUserRole)
-        triggersCreatePipeLine.addOperation(SqlQueries.createTriggerIncrementDocumentNumber)
-        triggersCreatePipeLine.addOperation(SqlQueries.createTriggerIncrementCargoID)
+        triggersCreatePipeLine.addOperation(SqlQueries.createTriggerIncrementContractNumber)
         triggersCreatePipeLine.run()
 
     @staticmethod

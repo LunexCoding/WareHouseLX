@@ -118,3 +118,16 @@ class SqlQueries:
         if offset is not None:
             query += f" OFFSET {offset}"
         return query
+
+    @staticmethod
+    def getLastIDFromTable(table):
+        query = f"""
+            SELECT id FROM {table} ORDER BY id DESC LIMIT 1
+        """
+        return query
+
+    @staticmethod
+    def selectRowFromTableByID(table, rowID):
+        query = f"""
+        SELECT ID FROM {table} WHERE ID = {rowID}"""
+        return query

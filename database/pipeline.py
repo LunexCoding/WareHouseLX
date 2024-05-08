@@ -3,7 +3,7 @@ from collections import namedtuple
 from .database import databaseSession
 
 
-OPERATION = namedtuple('Operation', ['query', 'data'])
+OPERATION = namedtuple("Operation", ["query", "data"])
 
 
 class DatabasePipeline:

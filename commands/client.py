@@ -3,10 +3,11 @@ import time
 from .consts import Constants
 from .status import COMMAND_STATUS
 from .command import BaseCommand, VALUE_TYPE
-from .accessLevel import ACCESS_LEVEL
+from .accessLevel import ACCESS_LEVEL, ROLES
 from .processСonditions import ProcessConditions
 from dataStructures.referenceBook import g_referenceBooks
 from tools.logger import logger
+from tools.dateConverter import convertTimestampToDate, convertDateToTimestamp
 
 
 _log = logger.getLogger(__name__)
@@ -35,7 +36,7 @@ class ClientCommand(BaseCommand):
 
 
 class SearchRows(ClientCommand):
-    COMMAND_NAME = "search"
+    COMMAND_NAME = Constants.COMMAND_SEARCH
 
     def __init__(self):
         super().__init__()
@@ -58,7 +59,6 @@ class SearchRows(ClientCommand):
                 table = args["-t"]
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
                 conditionString = args["-c"]
-
                 conditions = ProcessConditions.process(conditionString.split("|"), referenceBook.columns)
                 data = referenceBook.searchRowByParams(conditions)
                 return COMMAND_STATUS.EXECUTED, data
@@ -68,17 +68,17 @@ class SearchRows(ClientCommand):
 
 
 class AddRow(ClientCommand):
-    COMMAND_NAME = "add"
+    COMMAND_NAME = Constants.COMMAND_ADD
 
     def __init__(self):
         super().__init__()
         self.msgHelp = None
         self._allowedFlags = {
-            "-t": VALUE_TYPE.STRING,
             "-c": VALUE_TYPE.LIST,
-            "-v": VALUE_TYPE.LIST
+            "-v": VALUE_TYPE.LIST,
+            "-t": VALUE_TYPE.STRING
         }
-        self._argsWithoutFlagsOrder = ["-t", "-c", "-v"]
+        self._argsWithoutFlagsOrder = ["-c", "-v", "-t"]
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
 
@@ -94,22 +94,26 @@ class AddRow(ClientCommand):
                 columns = args["-c"]
                 if len(columns) == 1 and columns[0] == "*":
                     columns = referenceBook.columns.copy()
-                    del columns[0]
                 values = args["-v"]
 
-                try:
-                    row = dict(zip(columns, values))
-                    referenceBook.addRow(row)
-                    return COMMAND_STATUS.EXECUTED, None
-                except Exception:
+                row = dict(zip(columns, values))
+                row["CreationDate"] = convertTimestampToDate(row["CreationDate"])
+                rowID = referenceBook.addRow(row)
+                if rowID is not None:
+                    status, result = SearchRows().execute(client, f"{table} ID={rowID}")
+                    if status == COMMAND_STATUS.EXECUTED:
+                        result["CreationDate"] = convertDateToTimestamp(result["CreationDate"])
+                        return COMMAND_STATUS.EXECUTED, [result]
+
                     return COMMAND_STATUS.FAILED, None
+                return COMMAND_STATUS.FAILED, None
             return executionPermission
 
         return COMMAND_STATUS.FAILED, None
 
 
 class Authorization(ClientCommand):
-    COMMAND_NAME = "authorization"
+    COMMAND_NAME = Constants.COMMAND_AUTHORIZATION
 
     def __init__(self):
         super().__init__()
@@ -136,13 +140,13 @@ class Authorization(ClientCommand):
                 user = self._getUser(login, password, referenceBook)
                 if user is not None:
                     role = self._getRole(user)
-                    user["Role"] = role
+                    user["Role"] = ROLES.getRoleStatus(role)
                     client.authorization(user)
                     del user["Login"]
                     del user["Password"]
                     del user["RoleID"]
                     _log.debug(f"Client is authorized -> ID<{user['ID']}>, fullname: {user['Fullname']}")
-                    return COMMAND_STATUS.EXECUTED, user
+                    return COMMAND_STATUS.EXECUTED, [user]
                 return COMMAND_STATUS.FAILED, Constants.USER_NOT_FOUND
             return executionPermission
 
@@ -152,7 +156,7 @@ class Authorization(ClientCommand):
     def _getUser(login, password, referenceBook):
         condition = f"Login='{login}'|Password='{password}'"
         processedCondition = ProcessConditions.process(condition.split("|"), referenceBook.columns)
-        user = referenceBook.searchRowByParams(processedCondition)[0]
+        user = referenceBook.searchRowByParams(processedCondition)
         if user:
             return user
         return None
@@ -163,12 +167,41 @@ class Authorization(ClientCommand):
         roleID = user['RoleID']
         condition = f"ID={roleID}"
         processedCondition = ProcessConditions.process(condition.split("|"), referenceBook.columns)
-        role = referenceBook.searchRowByParams(processedCondition)[0]["Name"]
+        role = referenceBook.searchRowByParams(processedCondition)["Name"]
         return role
 
 
+class LoadRows(ClientCommand):
+    COMMAND_NAME = Constants.COMMAND_LOAD
+
+    def __init__(self):
+        super().__init__()
+        self.msgHelp = None
+        self._allowedFlags = {
+            "-t": VALUE_TYPE.STRING
+        }
+        self._argsWithoutFlagsOrder = ["-t"]
+        self.isAuthorizedLevel = True
+        self.requiredAccessLevel = ACCESS_LEVEL.USER
+
+    def execute(self, client=None, commandArgs=None):
+        args = self._getArgs(commandArgs)
+        if self._checkFlags(args):
+
+            executionPermission = self._checkExecutionPermission(client)
+            if executionPermission[0] == COMMAND_STATUS.EXECUTED:
+
+                table = args["-t"]
+                referenceBook = [book for book in g_referenceBooks if book.table == table][0]
+                rows = referenceBook.loadRows(client)
+                return COMMAND_STATUS.EXECUTED, rows
+
+            return executionPermission
+        return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
+
+
 class LongRunningCommand(ClientCommand):
-    COMMAND_NAME = "long_run"
+    COMMAND_NAME = Constants.COMMAND_LONG
 
     def __init__(self):
         super().__init__()
@@ -176,7 +209,7 @@ class LongRunningCommand(ClientCommand):
         self.isAuthorizedLevel = True
         self.requiredAccessLevel = ACCESS_LEVEL.USER
 
-    def execute(self, client=None, commandArgs=None):
+    def execute(self, client=None, commandArgs=None, table=None):
         # Имитация долгой работы на 10 секунд
         executionPermission = self._checkExecutionPermission(client)
         if executionPermission[0] == COMMAND_STATUS.EXECUTED:
@@ -190,6 +223,7 @@ class LongRunningCommand(ClientCommand):
 COMMANDS = {
     SearchRows.COMMAND_NAME: SearchRows,
     AddRow.COMMAND_NAME: AddRow,
+    LoadRows.COMMAND_NAME: LoadRows,
     LongRunningCommand.COMMAND_NAME: LongRunningCommand,
     Authorization.COMMAND_NAME: Authorization
 }
