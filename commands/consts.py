@@ -4,6 +4,8 @@ from database.tables import DatabaseTables
 
 
 class Constants:
+    SERVICE_SYMBOL = "\0"
+    SERVICE_SYMBOL_FOR_ARGS = "\\u2063"
     SERVER_COMMAND_INIT_DATABASE = "init_db"
     SERVER_COMMAND_INIT_BOOKS = "init"
     COMMAND_AUTHORIZATION = "auth"
@@ -22,7 +24,7 @@ class Constants:
     CLIENT_NOT_ACCEPTED_MDG = "Client not accepted."
 
 
-COMMAND = namedtuple('Command', ["id", "name", "params"])
+COMMAND = namedtuple("Command", ["id", "name", "params"])
 
 
 class Commands:

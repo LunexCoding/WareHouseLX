@@ -19,14 +19,6 @@ class SqlQueries:
             FOREIGN KEY (`RoleID`) REFERENCES {DatabaseTables.ROLES}(`ID`)
         );
     """
-    createTableClients = f"""
-        CREATE TABLE IF NOT EXISTS {DatabaseTables.CLIENTS} (
-            `ID` INTEGER PRIMARY KEY,
-            `Name` VARCHAR(255),
-            `Email` VARCHAR(255),
-            `Phone` VARCHAR(255)
-        );
-    """
     createTableWorkshops = f"""
             CREATE TABLE IF NOT EXISTS {DatabaseTables.WORKSHOPS} (
                 `ID` INTEGER PRIMARY KEY,
@@ -45,11 +37,10 @@ class SqlQueries:
     createTableOrders = f"""
         CREATE TABLE IF NOT EXISTS {DatabaseTables.ORDERS} (
             `ID` INTEGER PRIMARY KEY,
-            `ClientID` INTEGER,
+            `Client` TEXT,
             `ContractNumber` INTEGER,
             `CreationDate` TEXT,
-            `Comment` TEXT,
-            FOREIGN KEY (`ClientID`) REFERENCES {DatabaseTables.CLIENTS}(`ID`)
+            `Comment` TEXT
         );
     """
     createTableOrderDetails = f"""
@@ -57,8 +48,8 @@ class SqlQueries:
             `ID` INTEGER PRIMARY KEY,
             `OrderID` INTEGER,
             `MachineID` INTEGER,
-            `Comment` TEXT,
-            `Status` TEXT,
+            `Status` TEXT DEFAULT 'В обработке',
+            CONSTRAINT `chk_status` CHECK (Status IN ('В обработке', 'В работе', 'Завершен'))
             FOREIGN KEY (`OrderID`) REFERENCES {DatabaseTables.ORDERS}(`ID`),
             FOREIGN KEY (`MachineID`) REFERENCES {DatabaseTables.MACHINES}(`ID`)
         );
@@ -92,7 +83,7 @@ class SqlQueries:
         AFTER INSERT ON {DatabaseTables.ORDERS}
         BEGIN
             UPDATE {DatabaseTables.ORDERS}
-            SET ContractNumber = (SELECT IFNULL(MAX(ContractNumber), 0) + 1 FROM {DatabaseTables.ORDERS} WHERE ClientID = NEW.ClientID)
+            SET ContractNumber = (SELECT IFNULL(MAX(ContractNumber), 0) + 1 FROM {DatabaseTables.ORDERS} WHERE Client = NEW.Client)
             WHERE ID = NEW.ID;
         END;
     """

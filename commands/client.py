@@ -93,7 +93,7 @@ class AddRow(ClientCommand):
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
                 columns = args["-c"]
                 if len(columns) == 1 and columns[0] == "*":
-                    columns = referenceBook.columns.copy()
+                    columns = referenceBook.columnsForInsertion.copy()
                 values = args["-v"]
 
                 row = dict(zip(columns, values))

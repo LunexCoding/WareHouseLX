@@ -3,6 +3,7 @@ from database.queries import SqlQueries
 from database.database import DatabaseConnectionFactory
 from settingsConfig import g_settingsConfig
 from tools.dateConverter import convertDateToTimestamp
+from commands.consts import Constants as CMDConstants
 
 
 class _ReferenceBook:
@@ -57,10 +58,11 @@ class _ReferenceBook:
         for column in row.keys():
             if column in self._columnsForInsertion:
                 columns.append(column)
+            row[column] = row[column].replace(CMDConstants.SERVICE_SYMBOL_FOR_ARGS, " ")
         with self.databaseFactory.createConnection() as db:
             db.execute(
                 SqlQueries.insertIntoTable(self._table, columns),
-                data=list([row[column] for column in columns])
+                data=list([row[column].replace(CMDConstants.SERVICE_SYMBOL, " ") for column in columns])
             )
 
     def _checkNextRowExists(self):
