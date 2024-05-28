@@ -14,7 +14,7 @@ _log = logger.getLogger(__name__)
 class AuthorizationWindowContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
-        self.button = CTkButton(master=window, command=self._login)
+        self.button = CTkButton(master=window, text="Войти", command=self._login)
         self.errorLabel = CTkLabel(master=window, text=Constants.ERROR_LABEL_MSG, text_color=Constants.ERROR_LABEL_MSG_COLOR, font=Constants.FONT)
         self.entryLogin = CTkEntry(master=window, placeholder_text="Логин")
         self.entryPassword = CTkEntry(master=window, placeholder_text="Пароль", show="*")

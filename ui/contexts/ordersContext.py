@@ -1,15 +1,16 @@
 from customtkinter import END, CTkButton, CTkFrame, Y
 
 from dataStructures.referenceBook import g_ordersBook
+from dataStructures.order import Order
 from ui.widgets import CommandButtonsWidget, PageNameWidget, TableWidget, UserInfoWidget
 from user import g_user
 
 from .consts import Constants
 from .context import Context
-from .popup.inputIncomingDocumentsWindow import InputIncomingDocumentsWindowContext
+from .popup.inputIOrder import InputOrderContext
 
 
-class IncomingDocumentsWindowContext(Context):
+class OrdersWindowContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
         self._referenceBook = g_ordersBook
@@ -30,7 +31,7 @@ class IncomingDocumentsWindowContext(Context):
 
         self.frame.pack(fill=Y, padx=10, pady=10)
 
-        self.table = TableWidget(window, Constants.ORDERS_TREE_OPTIONS).init()
+        self.table = TableWidget(window, Order).init()
 
         self.buttonLoad = CTkButton(window, text=Constants.BUTTON_LOAD_MORE, font=Constants.FONT, command=self._onButtonLoadClicked)
         self.buttonLoad.pack(padx=20, pady=20)
@@ -38,10 +39,11 @@ class IncomingDocumentsWindowContext(Context):
 
     def _onButtonCreateClicked(self):
         self._window.openTopLevel(
-            InputIncomingDocumentsWindowContext,
+            InputOrderContext,
             {
                 "name": Constants.POPUP_WINDOW_NAME_INPUT_INCOMING_DOCUMENT,
-                "command": self._save
+                "command": self._save,
+                "obj": Order
             }
         )
 
@@ -69,12 +71,15 @@ class IncomingDocumentsWindowContext(Context):
 
     def _loadRows(self):
         if not self._referenceBook.rows:
-            rows = self._referenceBook.loadRows()
-            self.displayRows(rows)
+            while True:
+                rows = self._referenceBook.loadRows()
+                if rows is None:
+                    break
+                self.displayRows(rows)
         else:
             self.displayRows(self._referenceBook.rows)
 
     def displayRows(self, rows):
         if rows is not None:
             for row in rows:
-                self.table.insert("", END, values=row)
+                self.table.insert("", END, values=list(row.data.values()))
