@@ -55,9 +55,12 @@ class Socket:
             if args is not None:
                 argsCommand += args
             result = commandObj.execute(client, argsCommand)
-            status = result[0]
-            if result[1] is not None:
-                data = "|".join(CMDConstants.SERVICE_SYMBOL.join(map(str, record.values())) for record in result[1])
+            status, records = result[0], result[1]
+            if records is not None:
+                if isinstance(records, list):
+                    data = "|".join(CMDConstants.SERVICE_SYMBOL.join(map(str, record.values())) for record in records)
+                else:
+                    data = records
                 response = Constants.RESPONSE_STRING.format(commandID, status, data)
             else:
                 data = None

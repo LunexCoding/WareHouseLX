@@ -40,8 +40,8 @@ class _ReferenceBook:
         result = []
         for row in rows:
             rowData = {}
-            for i, column in enumerate(self._columns):
-                rowData[column] = convertDateToTimestamp(row[i]) if "Date" in column else row[i]
+            for index, column in enumerate(self._columns):
+                rowData[column] = convertDateToTimestamp(row[index]) if "Date" in column else row[index]
             result.append(rowData)
         return result
 
@@ -88,6 +88,7 @@ class _ReferenceBook:
 
     def deleteRow(self, rowID):
         self._deleteRowFromDB(rowID)
+        return rowID
 
     def _deleteRowFromDB(self, rowID):
         idColumn = self._columns[0]
@@ -101,7 +102,6 @@ class _ReferenceBook:
             "condition": filterData,
             "tableColumns": self._columns
         }
-
         with self.databaseFactory.createConnection() as db:
             rows = db.getData(
                 SqlQueries.selectFromTable(self._table, requestData, limit, offset),

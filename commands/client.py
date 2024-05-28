@@ -62,8 +62,8 @@ class SearchRows(ClientCommand):
                 conditions = ProcessConditions.process(conditionString.split("|"), referenceBook.columns)
                 data = referenceBook.searchRowByParams(conditions)
                 return COMMAND_STATUS.EXECUTED, data
-            return executionPermission
 
+            return executionPermission
         return COMMAND_STATUS.FAILED, None
 
 
@@ -147,6 +147,7 @@ class Authorization(ClientCommand):
                     del user["RoleID"]
                     _log.debug(f"Client is authorized -> ID<{user['ID']}>, fullname: {user['Fullname']}")
                     return COMMAND_STATUS.EXECUTED, [user]
+
                 return COMMAND_STATUS.FAILED, Constants.USER_NOT_FOUND
             return executionPermission
 
@@ -200,30 +201,41 @@ class LoadRows(ClientCommand):
         return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
 
 
-class LongRunningCommand(ClientCommand):
-    COMMAND_NAME = Constants.COMMAND_LONG
+class DeleteRow(ClientCommand):
+    COMMAND_NAME = Constants.COMMAND_DELETE
 
     def __init__(self):
         super().__init__()
         self.msgHelp = None
+        self._allowedFlags = {
+            "-i": VALUE_TYPE.INT,
+            "-t": VALUE_TYPE.STRING
+        }
+        self._argsWithoutFlagsOrder = ["-i", "-t"]
         self.isAuthorizedLevel = True
-        self.requiredAccessLevel = ACCESS_LEVEL.USER
+        self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
 
-    def execute(self, client=None, commandArgs=None, table=None):
-        # Имитация долгой работы на 10 секунд
-        executionPermission = self._checkExecutionPermission(client)
-        if executionPermission[0] == COMMAND_STATUS.EXECUTED:
-            start_time = time.time()
-            while time.time() - start_time < 10:
-                pass
-            return COMMAND_STATUS.EXECUTED, None
-        return executionPermission
+    def execute(self, client=None, commandArgs=None):
+        args = self._getArgs(commandArgs)
+        if self._checkFlags(args):
+
+            executionPermission = self._checkExecutionPermission(client)
+            if executionPermission[0] == COMMAND_STATUS.EXECUTED:
+
+                rowID = args["-i"]
+                table = args["-t"]
+                referenceBook = [book for book in g_referenceBooks if book.table == table][0]
+                referenceBook.deleteRow(rowID)
+                return COMMAND_STATUS.EXECUTED, rowID
+
+            return executionPermission
+        return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
 
 
 COMMANDS = {
     SearchRows.COMMAND_NAME: SearchRows,
     AddRow.COMMAND_NAME: AddRow,
     LoadRows.COMMAND_NAME: LoadRows,
-    LongRunningCommand.COMMAND_NAME: LongRunningCommand,
+    DeleteRow.COMMAND_NAME: DeleteRow,
     Authorization.COMMAND_NAME: Authorization
 }
