@@ -11,7 +11,6 @@ class _ReferenceBook:
         self._table = table
         self._columns = []
         self._columnsForInsertion = []
-        self._rowList = []
         self._sampleLimit = g_settingsConfig.DatabaseSettings["sampleLimit"]
         self.databaseFactory = databaseFactory
 
@@ -28,7 +27,6 @@ class _ReferenceBook:
         clientOffset = client.getOffset(self._table)
         rows = self._loadRowsFromDB(clientOffset)
         if rows:
-            self._rowList.extend(rows)
             client.updateOffset(self._table, len(rows))
             return rows
         return None
@@ -127,10 +125,6 @@ class _ReferenceBook:
     @property
     def columnsForInsertion(self):
         return self._columnsForInsertion
-
-    @property
-    def rows(self):
-        return self._rowList
 
     @property
     def lastRowID(self):
