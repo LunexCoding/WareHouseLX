@@ -1,8 +1,9 @@
 from commands.center import g_commandCenter
-from commands.consts import Constants, Commands
+from commands.consts import Constants as CMDConstants, Commands
 from commands.roles import Roles
 from commands.status import COMMAND_STATUS
 from tools.logger import logger
+from connection import g_socket
 
 
 _log = logger.getLogger(__name__)
@@ -16,9 +17,10 @@ class _User:
         self._role = Roles.getRole(0)
 
     def authorization(self, login, password):
-        COMMAND_TYPE = Constants.COMMAND_AUTHORIZATION
+        g_socket.checkConnection()
+        COMMAND_TYPE = CMDConstants.COMMAND_AUTHORIZATION
         commandID = Commands.getCommandByType(COMMAND_TYPE, None)
-        response = g_commandCenter.execute(f"{commandID} {login} {password}")
+        response = g_commandCenter.execute(CMDConstants.COMMAND_STRING.format(commandID, login, password))
         data = self._processingResponse(commandID, response)
         if data is None:
             _log.debug("User authorization failed.")
@@ -31,11 +33,14 @@ class _User:
 
     @staticmethod
     def _processingResponse(commandID, response):
-        commandIDResponse = int(response.pop(0))
-        commandStatus = int(response.pop(0))
-        data = response.copy()
-        if commandID == commandIDResponse and commandStatus == COMMAND_STATUS.EXECUTED:
-            return data
+        if response is not None:
+            commandString = " ".join([item.replace(CMDConstants.SERVICE_SYMBOL, " ") for item in response]).split()
+            commandIDResponse = int(commandString.pop(0))
+            commandStatus = int(commandString.pop(0))
+            data = commandString.copy()
+            if commandID == commandIDResponse and commandStatus == COMMAND_STATUS.EXECUTED:
+                return data
+            return None
         return None
 
     @property

@@ -1,33 +1,40 @@
 import socket
 
+from consts import Constants
+from tools.logger import logger
 from settingsConfig import g_settingsConfig
+
+
+_log = logger.getLogger(__name__)
 
 
 class _Socket:
     def __init__(self, host, port):
-        self.host = host
-        self.port = port
-        self.clientSocket = None
-        self.responses = []
+        self._host = host
+        self._port = port
+        self._clientSocket = None
+        self._responses = []
 
     def init(self):
         self.connect()
 
     def connect(self):
-        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.clientSocket.connect((self.host, self.port))
+        self._clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._clientSocket.connect((self._host, self._port))
+        _log.debug(f"Connected to server {self._host}:{self._port}")
 
     def sendCommand(self, command):
-        if not self.clientSocket:
-            raise ConnectionError("Client is not connected. Call the connect() method first.")
-        self.clientSocket.sendall(str(command).encode())
+        if not self._clientSocket:
+            raise ConnectionError(Constants.CLIENT_IS_NOT_CONNECTED_MSG)
+        self._clientSocket.sendall(str(command).encode())
+        _log.debug(Constants.SENT_MSG.format(command))
 
     def receiveResponse(self):
-        if not self.clientSocket:
-            raise ConnectionError("Client is not connected. Call the connect() method first.")
+        if not self._clientSocket:
+            raise ConnectionError(Constants.CLIENT_IS_NOT_CONNECTED_MSG)
         receivedData = ""
         while True:
-            response = self.clientSocket.recv(1024).decode()
+            response = self._clientSocket.recv(1024).decode()
             if response[-1] != " ":
                 receivedData += response
                 break
@@ -37,19 +44,31 @@ class _Socket:
     def sendAndReceiveSync(self, command):
         self.sendCommand(command)
         response = self.receiveResponse()
+        _log.debug(Constants.RECEIVED_MSG.format(response))
         return response.split()
 
     def sendAndReceiveAsync(self, commands):
         self.clearResponses()
-
-        for command in commands:
-            response = self.sendAndReceiveSync(command)
-            self.responses.append(response)
-
-        return self.responses
+        try:
+            for command in commands:
+                response = self.sendAndReceiveSync(command)
+                self._responses.append(response)
+            if len(commands) == 1:
+                return self._responses[0]
+            return self._responses
+        except OSError:
+            return None
 
     def clearResponses(self):
-        self.responses.clear()
+        self._responses.clear()
+
+    def checkConnection(self):
+        try:
+            self._clientSocket.settimeout(1)
+            self._clientSocket.connect((self._host, self._port))
+            return True
+        except Exception:
+            return False
 
 
 g_socket = _Socket(

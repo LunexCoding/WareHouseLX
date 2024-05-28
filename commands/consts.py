@@ -4,11 +4,14 @@ from tools.tables import DatabaseTables
 
 
 class Constants:
+    SERVICE_SYMBOL = "\0"
+    SERVICE_SYMBOL_FOR_ARGS = "\u2063"
     COMMAND_AUTHORIZATION = "auth"
     COMMAND_SEARCH = "search"
     COMMAND_LOAD = "load"
     COMMAND_ADD = "add"
     COMMAND_LONG = "long"
+    COMMAND_STRING = "{}.{}.{}".replace(".", SERVICE_SYMBOL)
 
 
 COMMAND = namedtuple("Command", ["id", "type", "params"])
