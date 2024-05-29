@@ -18,7 +18,6 @@ class Initializer:
         databaseCreationPipeline.addOperation(SqlQueries.applyingSettings)
         databaseCreationPipeline.addOperation(SqlQueries.createTableRoles)
         databaseCreationPipeline.addOperation(SqlQueries.createTableUsers)
-        databaseCreationPipeline.addOperation(SqlQueries.createTableClients)
         databaseCreationPipeline.addOperation(SqlQueries.createTableWorkshops)
         databaseCreationPipeline.addOperation(SqlQueries.createTableStages)
         databaseCreationPipeline.addOperation(SqlQueries.createTableOrders)
