@@ -26,7 +26,7 @@ class _Socket:
     def sendCommand(self, command):
         if not self._clientSocket:
             raise ConnectionError(Constants.CLIENT_IS_NOT_CONNECTED_MSG)
-        self._clientSocket.sendall(str(command).encode())
+        self._clientSocket.sendall(str(command).encode("utf-8"))
         _log.debug(Constants.SENT_MSG.format(command))
 
     def receiveResponse(self):
@@ -34,7 +34,7 @@ class _Socket:
             raise ConnectionError(Constants.CLIENT_IS_NOT_CONNECTED_MSG)
         receivedData = ""
         while True:
-            response = self._clientSocket.recv(1024).decode()
+            response = self._clientSocket.recv(1024).decode("utf-8")
             if response[-1] != " ":
                 receivedData += response
                 break

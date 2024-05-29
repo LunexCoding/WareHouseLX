@@ -20,7 +20,7 @@ class _User:
         g_socket.checkConnection()
         COMMAND_TYPE = CMDConstants.COMMAND_AUTHORIZATION
         commandID = Commands.getCommandByType(COMMAND_TYPE, None)
-        response = g_commandCenter.execute(CMDConstants.COMMAND_STRING.format(commandID, login, password))
+        response = g_commandCenter.execute(CMDConstants.DEFAULT_COMMAND_STRING.format(commandID, login, password))
         data = self._processingResponse(commandID, response)
         if data is None:
             _log.debug("User authorization failed.")
