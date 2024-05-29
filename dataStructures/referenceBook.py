@@ -78,7 +78,6 @@ class _ReferenceBook:
     def updateRow(self, rowID, data):
         self._updateRowIntoDB(rowID, data)
         row = self.searchRowByParams(f"ID = {rowID}")
-        print("row", row)
         return row
 
     def _updateRowIntoDB(self, rowID, data):
@@ -149,7 +148,6 @@ g_referenceBookFactory = ReferenceBookFactory(DatabaseConnectionFactory(g_settin
 
 g_usersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.USERS)
 g_userRolesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ROLES)
-g_clientsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.CLIENTS)
 g_workshopsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.WORKSHOPS)
 g_stagesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.STAGES)
 g_ordersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ORDERS)
@@ -159,7 +157,6 @@ g_machinesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.MACHI
 g_referenceBooks = [
     g_usersBook,
     g_userRolesBook,
-    g_clientsBook,
     g_workshopsBook,
     g_stagesBook,
     g_ordersBook,

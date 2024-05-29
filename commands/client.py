@@ -95,12 +95,14 @@ class AddRow(ClientCommand):
                 values = args["-v"]
 
                 row = dict(zip(columns, values))
-                row["CreationDate"] = convertTimestampToDate(row["CreationDate"])
+                if Constants.CREATION_DATE_FIELD in columns:
+                    row["CreationDate"] = convertTimestampToDate(row["CreationDate"])
                 rowID = referenceBook.addRow(row)
                 if rowID is not None:
                     status, result = SearchRows().execute(client, f"{table} ID={rowID}")
                     if status == COMMAND_STATUS.EXECUTED:
-                        result["CreationDate"] = convertDateToTimestamp(result["CreationDate"])
+                        if Constants.CREATION_DATE_FIELD in columns:
+                            result["CreationDate"] = convertDateToTimestamp(result["CreationDate"])
                         return COMMAND_STATUS.EXECUTED, [result]
 
                     return COMMAND_STATUS.FAILED, None
