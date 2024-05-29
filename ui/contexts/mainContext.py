@@ -5,7 +5,6 @@ from user import g_user
 
 from .consts import Constants
 from .context import Context
-from .workshopsContext import WorkshopsContext
 from .ordersContext import OrdersContext
 
 
@@ -19,10 +18,8 @@ class MainWindowContext(Context):
         PageNameWidget(self.frame, Constants.PAGE_MAIN)
 
         self.buttonFrame = CTkFrame(self.frame)
-        self.buttonOpenWorkshopsContext = CTkButton(self.buttonFrame, text=Constants.PAGE_WORKSHOPS, font=Constants.FONT, command=self._onButtonOpenWorkshopsContextClicked)
         self.buttonOpenOrdersContext = CTkButton(self.buttonFrame, text=Constants.PAGE_ORDERS, font=Constants.FONT, command=self._onButtonOpenOrdersContextClicked)
 
-        self.buttonOpenWorkshopsContext.grid(row=0, column=1, padx=10, pady=10)
         self.buttonOpenOrdersContext.grid(row=0, column=2, padx=10, pady=10)
         self.buttonFrame.grid(row=0, column=1, padx=10, pady=10)
 
@@ -37,11 +34,6 @@ class MainWindowContext(Context):
         window = self._window
         self.clear()
         window.changeContext(OrdersContext)
-
-    def _onButtonOpenWorkshopsContextClicked(self):
-        window = self._window
-        self.clear()
-        window.changeContext(WorkshopsContext)
 
     def _onButtonExit(self):
         self._window.close()
