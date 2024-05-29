@@ -24,6 +24,6 @@ class TkinterMarkup:
 
 MARCUP = TkinterMarkup(
     typename='Markup', requiredFields=["element", "type"],
-    padx=None, pady=None, side=None, fill=None, expand=None,  # pack
-    row=None, column=None, sticky=None                        # grid
+    padx=None, pady=None, side=None, fill=None, expand=None, anchor=None,  # pack
+    row=None, column=None, sticky=None                                     # grid
 )

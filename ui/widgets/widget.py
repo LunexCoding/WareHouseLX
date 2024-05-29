@@ -30,6 +30,12 @@ class BaseWidget(CTkBaseClass):
                 row, column = markup.row, markup.column
                 markup.element.grid(padx=padx, pady=pady, sticky=sticky, row=row, column=column)
 
+    def setVisibility(self):
+        if self._visibility is True:
+            self.hide()
+        else:
+            self.show()
+
     @property
     def visibility(self):
         return self._visibility

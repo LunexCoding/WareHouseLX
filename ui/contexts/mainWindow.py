@@ -5,7 +5,7 @@ from user import g_user
 
 from .consts import Constants
 from .context import Context
-from .ordersContext import OrdersWindowContext
+from .ordersContext import OrdersContext
 
 
 class MainWindowContext(Context):
@@ -32,7 +32,7 @@ class MainWindowContext(Context):
     def _onButtonParish(self):
         window = self._window
         self.clear()
-        window.changeContext(OrdersWindowContext)
+        window.changeContext(OrdersContext)
 
     def _onButtonExit(self):
         self._window.close()

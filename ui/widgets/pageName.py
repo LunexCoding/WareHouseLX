@@ -7,9 +7,9 @@ from .widget import BaseWidget
 
 
 class PageNameWidget(BaseWidget):
-    def __init__(self, parent, pageName):
-        super().__init__(parent)
-        self.pageNameFrame = CTkFrame(parent)
+    def __init__(self, master, pageName):
+        super().__init__(master)
+        self.pageNameFrame = CTkFrame(master)
         self.pageNameLabel = CTkLabel(self.pageNameFrame, text=pageName, font=Constants.FONT)
         self.pageNameLabel.pack(padx=10, pady=10)
         self.pageNameFrame.grid(row=0, column=1, padx=10, pady=10)

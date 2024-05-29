@@ -7,9 +7,9 @@ from .widget import BaseWidget
 
 
 class UserInfoWidget(BaseWidget):
-    def __init__(self, parent, user):
-        super().__init__(parent)
-        self.userFrame = CTkFrame(parent)
+    def __init__(self, master, user):
+        super().__init__(master)
+        self.userFrame = CTkFrame(master)
         self.userRoleLabel = CTkLabel(self.userFrame, text=user.role, font=Constants.FONT)
         self.userFullnameLabel = CTkLabel(self.userFrame, text=user.fullname, font=Constants.FONT)
         self._uiElements.append(MARCUP(element=self.userFrame, type=TYPES_UI_MARKUP.GRID, padx=10, pady=10))
