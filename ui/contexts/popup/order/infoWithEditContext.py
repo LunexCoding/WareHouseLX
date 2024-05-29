@@ -1,12 +1,12 @@
 from customtkinter import CTkButton, CTkEntry, CTkScrollableFrame, CTkLabel, BOTH
 
-from .consts import Constants
+from ui.contexts.popup.consts import Constants
 from ui.contexts.context import Context
 from ui.contexts.consts import Constants as ContextsConstants
-from ui.widgets.errorLabel import ErrorLabal
+from ui.widgets.errorLabel import ErrorLabel
 
 
-class InfoObject(Context):
+class InfoWithEditOrderContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
 
@@ -20,7 +20,7 @@ class InfoObject(Context):
         window.focus()
 
         self.frame = CTkScrollableFrame(window)
-        self.errorLabel = ErrorLabal(
+        self.errorLabel = ErrorLabel(
             self.frame, text=Constants.ERROR_KEY_FIELDS_EMPTY_MSG.format(", ".join(self._dataObj.getFieldsForEditing())),
             text_color=ContextsConstants.ERROR_LABEL_MSG_COLOR, font=Constants.FONT,
             wraplength=Constants.ERROR_LABEL_WRAP

@@ -4,7 +4,7 @@ from .widget import BaseWidget
 from .markup import MARCUP, TYPES_UI_MARKUP
 
 
-class ErrorLabal(BaseWidget):
+class ErrorLabel(BaseWidget):
     def __init__(self, master, **kwargs):
         super().__init__(master)
         self._visibility = False

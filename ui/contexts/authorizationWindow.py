@@ -5,7 +5,7 @@ from user import g_user
 
 from .consts import Constants
 from .context import Context
-from .mainWindow import MainWindowContext
+from .mainContext import MainWindowContext
 
 
 _log = logger.getLogger(__name__)

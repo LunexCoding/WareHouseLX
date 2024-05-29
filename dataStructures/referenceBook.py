@@ -3,6 +3,7 @@ from commands.consts import Constants as CMDConstants, Commands
 from commands.status import COMMAND_STATUS
 from tools.dateConverter import convertTimestampToDate, isTimestamp
 from tools.tables import DatabaseTables
+from .workshop import Workshop
 from .order import Order
 
 
@@ -57,6 +58,7 @@ class _ReferenceBook:
         if data is not None:
             values = [",".join([value.replace(" ", CMDConstants.SERVICE_SYMBOL_FOR_ARGS) for value in map(str, data.values())])]
             command = CMDConstants.DEFAULT_COMMAND_STRING.format(commandID, columns, values).replace("'", "")
+            print(command)
             response = g_commandCenter.execute(command)
             dataObj = self._processingResponse(COMMAND_TYPE, commandID, response)[0]
             if dataObj is not None:
@@ -112,4 +114,5 @@ class _ReferenceBook:
         return self._rows
 
 
+g_workshopsBook = _ReferenceBook(DatabaseTables.WORKSHOPS, Workshop)
 g_ordersBook = _ReferenceBook(DatabaseTables.ORDERS, Order)

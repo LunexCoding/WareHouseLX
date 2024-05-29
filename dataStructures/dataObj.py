@@ -25,7 +25,3 @@ class DataObj:
         excludedFields = set(cls.getGeneratedFields() + ["ID"])
         fieldsForEditing = {key: value for key, value in cls.getFields().items() if key not in excludedFields}
         return fieldsForEditing
-
-    @classmethod
-    def getNamesMainFields(cls):
-        return [fieldData["text"] for field, fieldData in cls.getInputFields().items() if field in cls.getMainInputFields()]

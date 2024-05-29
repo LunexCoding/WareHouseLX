@@ -1,19 +1,19 @@
 from customtkinter import END, CTkButton, CTkFrame, Y
 
-from dataStructures.referenceBook import g_ordersBook
-from dataStructures.order import Order
+from dataStructures.referenceBook import g_workshopsBook
+from dataStructures.workshop import Workshop
 from ui.widgets import CommandButtonsWidget, PageNameWidget, TableWidget, UserInfoWidget
 from user import g_user
 
 from .consts import Constants
 from .context import Context
-from ui.contexts.popup.order.inputContext import InputOrderContext
+from ui.contexts.popup.workshop.inputContext import InputWorkshopContext
 
 
-class OrdersContext(Context):
+class WorkshopsContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
-        self._referenceBook = g_ordersBook
+        self._referenceBook = g_workshopsBook
 
         self.frame = CTkFrame(window)
 
@@ -31,7 +31,7 @@ class OrdersContext(Context):
 
         self.frame.pack(fill=Y, padx=10, pady=10)
 
-        self.table = TableWidget(window, Order, self._editRow)
+        self.table = TableWidget(window, Workshop, self._editRow)
 
         self.buttonLoad = CTkButton(window, text=Constants.BUTTON_LOAD_MORE, font=Constants.FONT, command=self._onButtonLoadClicked)
         self.buttonLoad.pack(padx=20, pady=20)
@@ -39,9 +39,9 @@ class OrdersContext(Context):
 
     def _onButtonCreateClicked(self):
         self._window.openTopLevel(
-            InputOrderContext,
+            InputWorkshopContext,
             {
-                "name": Constants.POPUP_WINDOW_NAME_INPUT_INCOMING_DOCUMENT,
+                "name": Constants.POPUP_WINDOW_NAME_INPUT_WORKSHOP,
                 "command": self._saveRow
             }
         )
