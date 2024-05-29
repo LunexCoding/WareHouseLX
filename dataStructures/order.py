@@ -15,7 +15,6 @@ class Order(DataObj):
         "Comment": {"text": "Комментарий", "size": ContextsConstants.ENTRY_WIDTH},
     }
     _GENERATED_FIELDS = ["CreationDate"]
-    _AUTOMATIC_FIELDS = ["ContractNumber"]
     _MAIN_INPUT_FIELDS = ["Client"]
 
     def __init__(self, id, client, contractNumber, creationDate, comment=None):

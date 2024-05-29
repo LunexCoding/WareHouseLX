@@ -55,6 +55,7 @@ class InfoObject(Context):
 
     def _validate(self):
         data = {column: None for column in self._dataObj.getFieldsForEditing().keys()}
+        data["ID"] = self._dataObj.data["ID"]
         entriesData = {column: entry.get() for (column, entry) in self._entries.items()}
         mainEntriesData = [entriesData[column] for column in self._dataObj.getMainInputFields() if column in entriesData]
 
