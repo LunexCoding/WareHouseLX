@@ -148,8 +148,6 @@ g_referenceBookFactory = ReferenceBookFactory(DatabaseConnectionFactory(g_settin
 
 g_usersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.USERS)
 g_userRolesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ROLES)
-g_workshopsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.WORKSHOPS)
-g_stagesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.STAGES)
 g_ordersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ORDERS)
 g_orderDetailsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ORDER_DETAILS)
 g_machinesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.MACHINES)
@@ -157,8 +155,6 @@ g_machinesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.MACHI
 g_referenceBooks = [
     g_usersBook,
     g_userRolesBook,
-    g_workshopsBook,
-    g_stagesBook,
     g_ordersBook,
     g_orderDetailsBook,
     g_machinesBook

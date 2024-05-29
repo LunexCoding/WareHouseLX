@@ -19,21 +19,6 @@ class SqlQueries:
             FOREIGN KEY (`RoleID`) REFERENCES {DatabaseTables.ROLES}(`ID`)
         );
     """
-    createTableWorkshops = f"""
-            CREATE TABLE IF NOT EXISTS {DatabaseTables.WORKSHOPS} (
-                `ID` INTEGER PRIMARY KEY,
-                `Name` VARCHAR(255)
-            );
-        """
-    createTableStages = f"""
-            CREATE TABLE IF NOT EXISTS {DatabaseTables.STAGES} (
-                `ID` INTEGER PRIMARY KEY,
-                `Name` VARCHAR(255),
-                `Description` TEXT,
-                `WorkshopID` INTEGER,
-                FOREIGN KEY (`WorkshopID`) REFERENCES {DatabaseTables.WORKSHOPS}(`ID`)
-            );
-        """
     createTableOrders = f"""
         CREATE TABLE IF NOT EXISTS {DatabaseTables.ORDERS} (
             `ID` INTEGER PRIMARY KEY,
@@ -48,8 +33,8 @@ class SqlQueries:
             `ID` INTEGER PRIMARY KEY,
             `OrderID` INTEGER,
             `MachineID` INTEGER,
-            `Status` TEXT DEFAULT 'В обработке',
-            CONSTRAINT `chk_status` CHECK (Status IN ('В обработке', 'В работе', 'Завершен'))
+            `Status` TEXT DEFAULT "В обработке",
+            CONSTRAINT `chk_status` CHECK (Status IN ("В обработке", "В работе", "Завершен"))
             FOREIGN KEY (`OrderID`) REFERENCES {DatabaseTables.ORDERS}(`ID`),
             FOREIGN KEY (`MachineID`) REFERENCES {DatabaseTables.MACHINES}(`ID`)
         );
@@ -63,8 +48,7 @@ class SqlQueries:
             `Direction` VARCHAR(255),
             `Parameter1` VARCHAR(255),
             `Parameter2` VARCHAR(255),
-            `StageID` INTEGER,
-            FOREIGN KEY (`StageID`) REFERENCES {DatabaseTables.STAGES}(`ID`)
+            `Stage` TEXT
         );
     """
     # TRIGERS #
