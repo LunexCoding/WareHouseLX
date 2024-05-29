@@ -33,7 +33,7 @@ class Socket:
                     self.clients.remove(client)
                     break
 
-                data = data.decode().strip()
+                data = data.decode("utf-8").strip()
 
                 if data.strip():
                     _log.debug(f"Received {Constants.LOG_USER_INFO_STRING.format(client.userID, client.fullname)} data: {data}")
@@ -49,7 +49,7 @@ class Socket:
         client = self.clients[clientID]
         commandString = command.split(CMDConstants.SERVICE_SYMBOL)
         commandID = int(commandString.pop(0))
-        argsCommand = " ".join(commandString)
+        argsCommand = " ".join(commandString).replace(CMDConstants.SERVICE_SYMBOL, " ")
         commandObj, args = self.commandCenter.searchCommand(commandID)
         if commandObj is not None:
             if args is not None:
@@ -73,7 +73,7 @@ class Socket:
     @staticmethod
     def sendToClient(client, response):
         clientSocket = client.socket
-        clientSocket.send(response.encode())
+        clientSocket.send(response.encode("utf-8"))
         _log.debug(f"Response {Constants.LOG_USER_INFO_STRING.format(client.userID, client.fullname)} data: {response}")
 
     def start(self):

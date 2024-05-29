@@ -47,11 +47,11 @@ class _ReferenceBook:
 
     def addRow(self, row):
         if not self._checkNextRowExists():
-            self._insertRowToDB(row)
+            self._addRowToDB(row)
             return self.lastRowID
         return None
 
-    def _insertRowToDB(self, row):
+    def _addRowToDB(self, row):
         columns = []
         for column in row.keys():
             if column in self._columnsForInsertion:
@@ -75,8 +75,11 @@ class _ReferenceBook:
                 return False if nextRowID is None else True
             return False
 
-    def editRow(self, rowID, data):
+    def updateRow(self, rowID, data):
         self._updateRowIntoDB(rowID, data)
+        row = self.searchRowByParams(f"ID = {rowID}")
+        print("row", row)
+        return row
 
     def _updateRowIntoDB(self, rowID, data):
         idColumn = self._columns[0]

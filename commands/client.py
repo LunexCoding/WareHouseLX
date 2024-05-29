@@ -1,5 +1,3 @@
-import time
-
 from .consts import Constants
 from .status import COMMAND_STATUS
 from .command import BaseCommand, VALUE_TYPE
@@ -80,7 +78,7 @@ class AddRow(ClientCommand):
         }
         self._argsWithoutFlagsOrder = ["-c", "-v", "-t"]
         self.isAuthorizedLevel = True
-        self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
+        self.requiredAccessLevel = ACCESS_LEVEL.USER
 
     def execute(self, client=None, commandArgs=None):
         args = self._getArgs(commandArgs)
@@ -232,10 +230,46 @@ class DeleteRow(ClientCommand):
         return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
 
 
+class UpdateRow(ClientCommand):
+    COMMAND_NAME = Constants.COMMAND_UPDATE
+
+    def __init__(self):
+        super().__init__()
+        self.msgHelp = None
+        self._allowedFlags = {
+            "-t": VALUE_TYPE.STRING,
+            "-c": VALUE_TYPE.LIST,
+            "-v": VALUE_TYPE.LIST
+        }
+        self._argsWithoutFlagsOrder = ["-c", "-v", "-t"]
+        self.isAuthorizedLevel = True
+        self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
+
+    def execute(self, client=None, commandArgs=None):
+        args = self._getArgs(commandArgs)
+        if self._checkFlags(args):
+
+            executionPermission = self._checkExecutionPermission(client)
+            if executionPermission[0] == COMMAND_STATUS.EXECUTED:
+                table = args["-t"]
+                columns = args["-c"]
+                values = [value.replace(Constants.SERVICE_SYMBOL_FOR_ARGS, " ") for value in args["-v"]]
+                data = dict(zip(columns, values))
+                rowID = data["ID"]
+                del data["ID"]
+                referenceBook = [book for book in g_referenceBooks if book.table == table][0]
+                row = referenceBook.updateRow(rowID, data)
+                return COMMAND_STATUS.EXECUTED, [row]
+
+            return executionPermission
+        return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
+
+
 COMMANDS = {
     SearchRows.COMMAND_NAME: SearchRows,
     AddRow.COMMAND_NAME: AddRow,
     LoadRows.COMMAND_NAME: LoadRows,
     DeleteRow.COMMAND_NAME: DeleteRow,
+    UpdateRow.COMMAND_NAME: UpdateRow,
     Authorization.COMMAND_NAME: Authorization
 }

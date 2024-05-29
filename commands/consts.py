@@ -5,7 +5,7 @@ from database.tables import DatabaseTables
 
 class Constants:
     SERVICE_SYMBOL = "\0"
-    SERVICE_SYMBOL_FOR_ARGS = "\\u2063"
+    SERVICE_SYMBOL_FOR_ARGS = "&"
     SERVER_COMMAND_INIT_DATABASE = "init_db"
     SERVER_COMMAND_INIT_BOOKS = "init"
     COMMAND_AUTHORIZATION = "auth"
@@ -13,6 +13,7 @@ class Constants:
     COMMAND_LOAD = "load"
     COMMAND_ADD = "add"
     COMMAND_DELETE = "del"
+    COMMAND_UPDATE = "upd"
     INIT_BOOKS_HELP_MSG = """Загрузка данных в справочники."""
     INIT_DATABASE_HELP_MSG = """Инициализация базы данных."""
     TABLE_FOR_AUTHORZATION = DatabaseTables.USERS
@@ -63,6 +64,13 @@ class Commands:
     COMMAND_DELETE_ORDER = COMMAND(25, Constants.COMMAND_DELETE, dict(table=DatabaseTables.ORDERS))
     COMMAND_DELETE_ORDER_DETAIL = COMMAND(26, Constants.COMMAND_DELETE, dict(table=DatabaseTables.ORDER_DETAILS))
     COMMAND_DELETE_MACHINE = COMMAND(27, Constants.COMMAND_DELETE, dict(table=DatabaseTables.MACHINES))
+
+    COMMAND_UPDATE_ROLE = COMMAND(28, Constants.COMMAND_UPDATE, dict(table=DatabaseTables.ROLES))
+    COMMAND_UPDATE_USER = COMMAND(29, Constants.COMMAND_UPDATE, dict(table=DatabaseTables.USERS))
+    COMMAND_UPDATE_CLIENT = COMMAND(30, Constants.COMMAND_UPDATE, dict(table=DatabaseTables.CLIENTS))
+    COMMAND_UPDATE_ORDER = COMMAND(31, Constants.COMMAND_UPDATE, dict(table=DatabaseTables.ORDERS))
+    COMMAND_UPDATE_ORDER_DETAIL = COMMAND(32, Constants.COMMAND_UPDATE, dict(table=DatabaseTables.ORDER_DETAILS))
+    COMMAND_UPDATE_MACHINE = COMMAND(33, Constants.COMMAND_UPDATE, dict(table=DatabaseTables.MACHINES))
 
     @classmethod
     def getCommandByID(cls, commandID):
