@@ -1,26 +1,47 @@
 from dataStructures.dataObjs.dataObj import DataObj
 from ui.contexts.popup.consts import Constants as ContextsConstants
+from ui.widgets.consts import WidgetConstants
+from commands.roles import ROLES_FOR_INPUT
 
 
 class User(DataObj):
     _FIELDS = {
-        "ID": {"text": "Номер", "size": ContextsConstants.ENTRY_WIDTH},
-        "Login": {"text": "Логин", "size": ContextsConstants.ENTRY_WIDTH},
-        "Password": {"text": "Пароль", "size": ContextsConstants.ENTRY_WIDTH},
-        "Role": {"text": "Роль", "size": ContextsConstants.ENTRY_WIDTH},
-        "Fullname": {"text": "ФИО", "size": ContextsConstants.ENTRY_WIDTH}
+        "ID": {
+            "text": "Номер",
+            "size": ContextsConstants.ENTRY_WIDTH
+        },
+        "Login": {
+            "text": "Логин",
+            "size": ContextsConstants.ENTRY_WIDTH,
+            "type": str,
+            "widget": WidgetConstants.ENTRY
+        },
+        "Password": {
+            "text": "Пароль",
+            "size": ContextsConstants.ENTRY_WIDTH,
+            "type": str,
+            "widget": WidgetConstants.ENTRY
+        },
+        "RoleID": {
+            "text": "Роль",
+            "size": ContextsConstants.ENTRY_WIDTH,
+            "type": int,
+            "widget": WidgetConstants.COMBOBOX,
+            "options": ROLES_FOR_INPUT
+        },
+        "Fullname": {
+            "text": "ФИО",
+            "size": ContextsConstants.ENTRY_WIDTH,
+            "type": str,
+            "widget": WidgetConstants.ENTRY
+        }
     }
-    _INPUT_FIELDS = {
-        "Login": {"text": "Логин", "size": ContextsConstants.ENTRY_WIDTH, "type": str},
-        "Password": {"text": "Пароль", "size": ContextsConstants.ENTRY_WIDTH, "type": str},
-        "RoleID": {"text": "Роль", "size": ContextsConstants.ENTRY_WIDTH, "type": str},
-        "Fullname": {"text": "Имя", "size": ContextsConstants.ENTRY_WIDTH, "type": str}
-    }
-    _GENERATED_FIELDS = ["CreationDate"]
+    _INPUT_FIELDS = ["Login", "Password", "RoleID", "Fullname"]
+    _EDIT_FIELDS = ["Login", "Password", "RoleID", "Fullname"]
     _MAIN_INPUT_FIELDS = ["Client"]
 
     def __init__(self, id, login, password, roleID, fullname):
-        self._id = id
+        self._id = int(id)
         self._login = login
         self._password = password
         self._roleID = roleID

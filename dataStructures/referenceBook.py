@@ -96,6 +96,17 @@ class _ReferenceBook:
                     return dataObj
         return None
 
+    def search(self, filter):
+        COMMAND_TYPE = CMDConstants.COMMAND_SEARCH
+        commandID = Commands.getCommandByType(COMMAND_TYPE, dict(table=self._table))
+        if filter is not None:
+            filterProcessed = filter.replace(" ", CMDConstants.SERVICE_SYMBOL_FOR_ARGS)
+            command = CMDConstants.DEFAULT_COMMAND_STRING.format(commandID, g_ordersBook.table, filterProcessed).replace("'", "")
+            response = g_commandCenter.execute(command)
+            dataObj = self._processingResponse(COMMAND_TYPE, commandID, response)[0]
+            return dataObj
+        return None
+
     def _checkDataObj(self, id):
         return any(dataObj.data["ID"] == id for dataObj in self._rows)
 
@@ -106,12 +117,16 @@ class _ReferenceBook:
         return None
 
     @property
-    def table(self):
-        return self._table
-
-    @property
     def rows(self):
         return self._rows
+
+    @property
+    def dataObj(self):
+        return self._dataObj
+
+    @property
+    def table(self):
+        return self._table
 
 
 g_usersBook = _ReferenceBook(DatabaseTables.USERS, User)

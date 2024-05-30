@@ -1,6 +1,7 @@
 class DataObj:
     _FIELDS = None
     _INPUT_FIELDS = None
+    _EDIT_FIELDS = None
     _GENERATED_FIELDS = None
     _MAIN_INPUT_FIELDS = None
 
@@ -21,8 +22,5 @@ class DataObj:
         return cls._MAIN_INPUT_FIELDS
 
     @classmethod
-    def getFieldsForEditing(cls):
-        generatedFields = cls.getGeneratedFields() or []
-        excludedFields = set(generatedFields + ["ID"])
-        fieldsForEditing = {key: value for key, value in cls.getFields().items() if key not in excludedFields}
-        return fieldsForEditing
+    def getEditFields(cls):
+        return cls._EDIT_FIELDS
