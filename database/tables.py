@@ -11,7 +11,9 @@ class DatabaseTables(StrEnum):
 
 class ColumnsForInsertion:
     _tableColumns = {
-        DatabaseTables.ORDERS.value: ["Client", "Comment", "CreationDate"]
+        DatabaseTables.USERS.value: ["Login", "Password", "RoleID", "Fullname"],
+        DatabaseTables.ORDERS.value: ["Client", "Comment", "CreationDate"],
+        DatabaseTables.MACHINES.value: ["Name", "Power", "Speed", "Direction", "Parameter1", "Parameter2", "Stage"]
     }
 
     @staticmethod
