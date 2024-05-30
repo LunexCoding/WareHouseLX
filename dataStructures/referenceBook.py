@@ -3,7 +3,9 @@ from commands.consts import Constants as CMDConstants, Commands
 from commands.status import COMMAND_STATUS
 from tools.dateConverter import convertTimestampToDate, isTimestamp
 from tools.tables import DatabaseTables
-from .order import Order
+from dataStructures.dataObjs.order import Order
+from dataStructures.dataObjs.machine import Machine
+from dataStructures.dataObjs.user import User
 
 
 class _ReferenceBook:
@@ -112,4 +114,6 @@ class _ReferenceBook:
         return self._rows
 
 
+g_usersBook = _ReferenceBook(DatabaseTables.USERS, User)
 g_ordersBook = _ReferenceBook(DatabaseTables.ORDERS, Order)
+g_machinesBook = _ReferenceBook(DatabaseTables.MACHINES, Machine)

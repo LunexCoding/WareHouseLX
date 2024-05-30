@@ -1,4 +1,4 @@
-from .dataObj import DataObj
+from dataStructures.dataObjs.dataObj import DataObj
 from ui.contexts.popup.consts import Constants as ContextsConstants
 
 
@@ -11,8 +11,8 @@ class Order(DataObj):
         "Comment": {"text": "Комментарий", "size": ContextsConstants.ENTRY_WIDTH}
     }
     _INPUT_FIELDS = {
-        "Client": {"text": "Клиент", "size": ContextsConstants.ENTRY_WIDTH},
-        "Comment": {"text": "Комментарий", "size": ContextsConstants.ENTRY_WIDTH},
+        "Client": {"text": "Клиент", "size": ContextsConstants.ENTRY_WIDTH, "type": str},
+        "Comment": {"text": "Комментарий", "size": ContextsConstants.ENTRY_WIDTH, "type": str}
     }
     _GENERATED_FIELDS = ["CreationDate"]
     _MAIN_INPUT_FIELDS = ["Client"]

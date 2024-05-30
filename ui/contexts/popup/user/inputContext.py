@@ -5,10 +5,10 @@ from ui.contexts.context import Context
 from ui.contexts.consts import Constants as ContextsConstants
 from ui.widgets.errorLabel import ErrorLabel
 from ui.contexts.popup.consts import Constants
-from dataStructures.dataObjs.order import Order
+from dataStructures.dataObjs.user import User
 
 
-class InputOrderContext(Context):
+class InputUserContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
 
@@ -16,7 +16,7 @@ class InputOrderContext(Context):
         self._command = data.get("command")
         self._entries = {}
         window.title(self._name)
-        window.geometry(f"{Constants.WINDOW_WIDTH}x{Constants.DEFAULT_FIELD_HEIGHT * (len(Order.getInputFields()) + 1)}")
+        window.geometry(f"{Constants.WINDOW_WIDTH}x{Constants.DEFAULT_FIELD_HEIGHT * (len(User.getInputFields()) + 1)}")
         window.resizable(False, False)
         window.focus()
 
@@ -26,33 +26,59 @@ class InputOrderContext(Context):
             text_color=ContextsConstants.ERROR_LABEL_MSG_COLOR, font=Constants.FONT, wraplength=Constants.ERROR_LABEL_WRAP
         )
         # FIELDS
-        # Client
+        # Login
         CTkLabel(
             self.frame,
-            text=Order.getInputFields()["Client"]["text"],
+            text=User.getInputFields()["Login"]["text"],
             font=Constants.FONT
         ).pack(pady=5)
-        clientEntry = CTkEntry(
+        loginEntry = CTkEntry(
             self.frame,
             font=Constants.FONT,
-            width=Order.getInputFields()["Client"]["size"]
+            width=User.getInputFields()["Login"]["size"]
         )
-        clientEntry.pack(pady=5)
-        # Comment
+        loginEntry.pack(pady=5)
+        # Password
         CTkLabel(
             self.frame,
-            text=Order.getInputFields()["Comment"]["text"],
+            text=User.getInputFields()["Password"]["text"],
             font=Constants.FONT
         ).pack(pady=5)
-        commentEntry = CTkEntry(
+        passwordEntry = CTkEntry(
             self.frame,
             font=Constants.FONT,
-            width=Order.getInputFields()["Comment"]["size"]
+            width=User.getInputFields()["Password"]["size"]
         )
-        commentEntry.pack(pady=5)
+        passwordEntry.pack(pady=5)
+        # Role
+        CTkLabel(
+            self.frame,
+            text=User.getInputFields()["Role"]["text"],
+            font=Constants.FONT
+        ).pack(pady=5)
+        roleEntry = CTkEntry(
+            self.frame,
+            font=Constants.FONT,
+            width=User.getInputFields()["Role"]["size"]
+        )
+        roleEntry.pack(pady=5)
+        # Fullname
+        CTkLabel(
+            self.frame,
+            text=User.getInputFields()["Fullname"]["text"],
+            font=Constants.FONT
+        ).pack(pady=5)
+        fullnameEntry = CTkEntry(
+            self.frame,
+            font=Constants.FONT,
+            width=User.getInputFields()["Fullname"]["size"]
+        )
+        fullnameEntry.pack(pady=5)
 
-        self._entries["Client"] = clientEntry
-        self._entries["Comment"] = commentEntry
+        self._entries["Login"] = loginEntry
+        self._entries["Password"] = passwordEntry
+        self._entries["Role"] = roleEntry
+        self._entries["Fullname"] = fullnameEntry
 
         self.buttonSave = CTkButton(self.frame, text="Сохранить", command=self._onButtonSaveClicked)
 
@@ -69,8 +95,8 @@ class InputOrderContext(Context):
 
     def _validate(self):
         entriesData = {column: entry.get() for (column, entry) in self._entries.items()}
-        mainFieldsData = {column: entriesData[column] for column in Order.getMainInputFields() if column in entriesData}
-        namesMainFields = {field: fieldData["text"] for field, fieldData in Order.getInputFields().items() if field in Order.getMainInputFields()}
+        mainFieldsData = {column: entriesData[column] for column in User.getMainInputFields() if column in entriesData}
+        namesMainFields = {field: fieldData["text"] for field, fieldData in User.getInputFields().items() if field in User.getMainInputFields()}
         if not all(len(value) != 0 for value in mainFieldsData.values()):
             missingMainFields = [column for column, value in mainFieldsData.items() if len(value) == 0]
             missingMainFieldsNames = ", ".join([namesMainFields[column] for column in missingMainFields])
@@ -78,8 +104,8 @@ class InputOrderContext(Context):
             return None
 
         for column, data in entriesData.items():
-            if column in Order.getInputFields():
-                expectedType = Order.getInputFields()[column].get("type")
+            if column in User.getInputFields():
+                expectedType = User.getInputFields()[column].get("type")
                 if expectedType:
                     try:
                         entriesData[column] = expectedType(data)
@@ -87,8 +113,8 @@ class InputOrderContext(Context):
                         self.errorLabel.setText(Constants.ERROR_TYPE_MSG.format(namesMainFields[column], expectedType.__name__))
                         return None
 
-        if Order.getGeneratedFields():
-            fields = g_fieldsGenerator.generateFields(Order.getGeneratedFields())
+        if User.getGeneratedFields():
+            fields = g_fieldsGenerator.generateFields(User.getGeneratedFields())
             if fields:
                 for column, value in fields.items():
                     entriesData[column] = value

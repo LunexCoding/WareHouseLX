@@ -22,6 +22,7 @@ class DataObj:
 
     @classmethod
     def getFieldsForEditing(cls):
-        excludedFields = set(cls.getGeneratedFields() + ["ID"])
+        generatedFields = cls.getGeneratedFields() or []
+        excludedFields = set(generatedFields + ["ID"])
         fieldsForEditing = {key: value for key, value in cls.getFields().items() if key not in excludedFields}
         return fieldsForEditing

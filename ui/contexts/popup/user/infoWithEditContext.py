@@ -7,7 +7,7 @@ from ui.contexts.consts import Constants as ContextsConstants
 from ui.widgets.errorLabel import ErrorLabel
 
 
-class InfoWithEditOrderContext(Context):
+class InfoWithEditUserContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
 
@@ -17,7 +17,7 @@ class InfoWithEditOrderContext(Context):
         self._entries = {}
 
         window.title(self._name)
-        window.geometry(f"{Constants.WINDOW_WIDTH}x{60 * (len(self._dataObj.getFieldsForEditing()) + 2)}")
+        window.geometry(f"{Constants.WINDOW_WIDTH}x{Constants.DEFAULT_FIELD_HEIGHT * (len(self._dataObj.getFieldsForEditing()) + 2)}")
         window.focus()
 
         self.frame = CTkFrame(window)
@@ -27,39 +27,67 @@ class InfoWithEditOrderContext(Context):
             wraplength=Constants.ERROR_LABEL_WRAP
         )
         # FIELDS
-        # Client
+        # Login
         CTkLabel(
             self.frame,
-            text=self._dataObj.getInputFields()["Client"]["text"],
+            text=self._dataObj.getInputFields()["Login"]["text"],
             font=Constants.FONT
         ).pack(pady=5)
-        clientEntry = CTkEntry(
+        loginEntry = CTkEntry(
             self.frame,
             font=Constants.FONT,
-            width=self._dataObj.getInputFields()["Client"]["size"]
+            width=self._dataObj.getInputFields()["Login"]["size"]
         )
-        clientEntry.insert(0, self._dataObj.data["Client"])
-        clientEntry.pack(pady=5)
-        # Comment
+        loginEntry.insert(0, self._dataObj.data["Login"])
+        loginEntry.pack(pady=5)
+        # Password
         CTkLabel(
             self.frame,
-            text=self._dataObj.getInputFields()["Comment"]["text"],
+            text=self._dataObj.getInputFields()["Password"]["text"],
             font=Constants.FONT
         ).pack(pady=5)
-        commentEntry = CTkEntry(
+        passwordEntry = CTkEntry(
             self.frame,
             font=Constants.FONT,
-            width=self._dataObj.getInputFields()["Comment"]["size"]
+            width=self._dataObj.getInputFields()["Password"]["size"]
         )
-        commentEntry.insert(0, self._dataObj.data["Comment"])
-        commentEntry.pack(pady=5)
+        passwordEntry.insert(0, self._dataObj.data["Password"])
+        passwordEntry.pack(pady=5)
+        # Role
+        CTkLabel(
+            self.frame,
+            text=self._dataObj.getInputFields()["RoleID"]["text"],
+            font=Constants.FONT
+        ).pack(pady=5)
+        roleEntry = CTkEntry(
+            self.frame,
+            font=Constants.FONT,
+            width=self._dataObj.getInputFields()["RoleID"]["size"]
+        )
+        roleEntry.insert(0, self._dataObj.data["RoleID"])
+        roleEntry.pack(pady=5)
+        # Fullname
+        CTkLabel(
+            self.frame,
+            text=self._dataObj.getInputFields()["Fullname"]["text"],
+            font=Constants.FONT
+        ).pack(pady=5)
+        fullnameEntry = CTkEntry(
+            self.frame,
+            font=Constants.FONT,
+            width=self._dataObj.getInputFields()["Fullname"]["size"]
+        )
+        fullnameEntry.insert(0, self._dataObj.data["Fullname"])
+        fullnameEntry.pack(pady=5)
 
-        self._entries["Client"] = clientEntry
-        self._entries["Comment"] = commentEntry
+        self._entries["Login"] = loginEntry
+        self._entries["Password"] = passwordEntry
+        self._entries["Role"] = roleEntry
+        self._entries["Fullname"] = fullnameEntry
 
         self.buttonSave = CTkButton(self.frame, text="Сохранить", command=self._onSaveButtonClicked)
 
-        self.buttonSave.pack(pady=25)
+        self.buttonSave.pack(pady=15)
         self.frame.pack(fill=BOTH, expand=True)
 
     def _onSaveButtonClicked(self):
