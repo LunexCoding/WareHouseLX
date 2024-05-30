@@ -8,3 +8,8 @@ class Constants:
     ERROR_LABEL_WRAP = 280
     DEFAULT_INPUT_WINDOW_NAME = "Popup Input Window"
     DEFAULT_INFO_WINDOW_NAME = "Popup Info Window"
+
+
+class DataObjContextType:
+    INPUT = 0
+    INFO = 1

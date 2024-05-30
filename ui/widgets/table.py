@@ -4,7 +4,9 @@ from customtkinter import BOTH, CENTER, LEFT, RIGHT, TOP, VERTICAL, CTkFrame, Y
 
 from .markup import MARCUP, TYPES_UI_MARKUP
 from .widget import BaseWidget
-from ui.contexts.popup.infoContexts import INFO_CONTEXTS
+from ui.contexts.consts import Constants
+from ui.contexts.popup.dataObjContext import DataObjContext
+from ui.contexts.popup.consts import DataObjContextType
 
 
 class TableWidget(BaseWidget):
@@ -55,13 +57,13 @@ class TableWidget(BaseWidget):
             self._selectedItem = self.tree.item(selectedItem[0])
 
     def _createInfoPopupWindow(self, item):
-        context = INFO_CONTEXTS.getContextByInstance(self._dataObj)
         self._window.openTopLevel(
-            context.contextInstance,
+            DataObjContext,
             {
-                "name": "Popup Info",
+                "name": Constants.POPUP_WINDOW_NAME_INFO,
                 "item": item,
-                "command": self._editCommand
+                "command": self._editCommand,
+                "contextType": DataObjContextType.INFO
             }
         )
 

@@ -15,5 +15,5 @@ class Constants:
     BUTTON_BACK = "Назад"
     BUTTON_EXIT = "Выход"
     BUTTON_LOAD_MORE = "Загрузить еще"
-    POPUP_WINDOW_NAME_INPUT_ORDER = "Создание документа прихода"
-    POPUP_WINDOW_NAME_INPUT_MACHINE = "Создание двигателя"
+    POPUP_WINDOW_NAME_INPUT = "Создание записи"
+    POPUP_WINDOW_NAME_INFO = "Информация о записи"

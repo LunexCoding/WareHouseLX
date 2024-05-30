@@ -1,26 +1,30 @@
 from customtkinter import END, CTkButton, CTkFrame, Y
 
-from dataStructures.referenceBook import g_machinesBook
-from dataStructures.dataObjs.machine import Machine
 from ui.widgets import CommandButtonsWidget, PageNameWidget, TableWidget, UserInfoWidget
 from user import g_user
-
+from tools.tables import DatabaseTables
+from dataStructures.referenceBook import g_ordersBook
 from .consts import Constants
 from .context import Context
-from ui.contexts.popup.machine.inputContext import InputMachineContext
+from .popup.dataObjContext import DataObjContext
+from .popup.consts import DataObjContextType
 
 
-class MachinesContext(Context):
+class PageDataObjContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
-        self._referenceBook = g_machinesBook
+
+        self._referenceBook = data["book"]
+        self._dataObj = self._referenceBook.dataObj
+        window.title(self._referenceBook.table)
 
         self.frame = CTkFrame(window)
 
         UserInfoWidget(self.frame, g_user)
-        PageNameWidget(self.frame, Constants.PAGE_MACHINES)
+        PageNameWidget(self.frame, self._referenceBook.table)
         CommandButtonsWidget(
             self.frame,
+            g_user,
             commands={
                 "create": self._onButtonCreateClicked,
                 "search": self._onButtonSearchClicked,
@@ -31,7 +35,7 @@ class MachinesContext(Context):
 
         self.frame.pack(fill=Y, padx=10, pady=10)
 
-        self.table = TableWidget(window, Machine, self._editRow)
+        self.table = TableWidget(window, self._dataObj, self._editRow)
 
         self.buttonLoad = CTkButton(window, text=Constants.BUTTON_LOAD_MORE, font=Constants.FONT, command=self._onButtonLoadClicked)
         self.buttonLoad.pack(padx=20, pady=20)
@@ -39,10 +43,12 @@ class MachinesContext(Context):
 
     def _onButtonCreateClicked(self):
         self._window.openTopLevel(
-            InputMachineContext,
+            DataObjContext,
             {
-                "name": Constants.POPUP_WINDOW_NAME_INPUT_MACHINE,
-                "command": self._saveRow
+                "name": Constants.POPUP_WINDOW_NAME_INPUT,
+                "command": self._saveRow,
+                "dataObj": self._dataObj,
+                "contextType": DataObjContextType.INPUT
             }
         )
 
@@ -76,6 +82,18 @@ class MachinesContext(Context):
         self._window.topLevelWindow.close()
         newRow = self._referenceBook.updateRow(row)
         self.table.updateRow(newRow)
+        if self._referenceBook.table == DatabaseTables.MACHINES:
+            orderRows = [obj.data for obj in g_ordersBook.rows]
+            if not orderRows:
+                g_ordersBook.loadRows()
+                orderRows = [obj for obj in g_ordersBook.rows if obj.data["MachineID"] == newRow.data["ID"]]
+            requiredRow = orderRows[0]
+            if isinstance(requiredRow, dict):
+                newOrderRow = g_ordersBook.search(f"MachineID = {requiredRow['MachineID']}")
+                g_ordersBook.rows[g_ordersBook.rows.index(g_ordersBook.findDataObjByID(requiredRow["ID"]))] = newOrderRow
+            else:
+                newOrderRow = g_ordersBook.search(f"MachineID = {requiredRow.data['MachineID']}")
+                g_ordersBook.rows[g_ordersBook.rows.index(requiredRow)] = newOrderRow
 
     def _loadRows(self):
         if not self._referenceBook.rows:

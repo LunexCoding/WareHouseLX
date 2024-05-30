@@ -4,16 +4,14 @@ from ui.widgets import PageNameWidget, UserInfoWidget
 from user import g_user
 
 from .consts import Constants
+from .pages import Pages
 from .context import Context
-from .usersContext import UsersContext
-from .ordersContext import OrdersContext
-from .machinesContext import MachinesContext
 
 
 class MainWindowContext(Context):
     def __init__(self, window, data):
         super().__init__(window, data)
-
+        window.title(Constants.PAGE_MAIN)
         self.frame = CTkFrame(window)
 
         UserInfoWidget(self.frame, g_user)
@@ -39,17 +37,38 @@ class MainWindowContext(Context):
     def _onButtonOpenUsersContextClicked(self):
         window = self._window
         self.clear()
-        window.changeContext(UsersContext)
+        context = Pages.USERS
+        window.changeContext(
+            context.context,
+            {
+                "name": Constants.PAGE_USERS,
+                "book": context.book
+            }
+        )
 
     def _onButtonOpenOrdersContextClicked(self):
         window = self._window
         self.clear()
-        window.changeContext(OrdersContext)
+        context = Pages.ORDERS
+        window.changeContext(
+            context.context,
+            {
+                "name": Constants.PAGE_ORDERS,
+                "book": context.book,
+            }
+        )
 
     def _onButtonOpenMachinesContextClicked(self):
         window = self._window
         self.clear()
-        window.changeContext(MachinesContext)
+        context = Pages.MACHINES
+        window.changeContext(
+            context.context,
+            {
+                "name": Constants.PAGE_MACHINES,
+                "book": context.book
+            }
+        )
 
     def _onButtonExit(self):
         self._window.close()
