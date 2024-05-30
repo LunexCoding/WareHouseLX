@@ -24,18 +24,11 @@ class SqlQueries:
             `ID` INTEGER PRIMARY KEY,
             `Client` TEXT,
             `ContractNumber` INTEGER,
-            `CreationDate` TEXT,
-            `Comment` TEXT
-        );
-    """
-    createTableOrderDetails = f"""
-        CREATE TABLE IF NOT EXISTS {DatabaseTables.ORDER_DETAILS} (
-            `ID` INTEGER PRIMARY KEY,
-            `OrderID` INTEGER,
             `MachineID` INTEGER,
-            `Status` TEXT DEFAULT "В обработке",
-            CONSTRAINT `chk_status` CHECK (Status IN ("В обработке", "В работе", "Завершен"))
-            FOREIGN KEY (`OrderID`) REFERENCES {DatabaseTables.ORDERS}(`ID`),
+            `CreationDate` TEXT,
+            `Comment` TEXT,
+            `Status` TEXT DEFAULT 'В обработке',
+            CONSTRAINT `chk_status` CHECK (Status IN ("В обработке", "В работе", "Завершен")),
             FOREIGN KEY (`MachineID`) REFERENCES {DatabaseTables.MACHINES}(`ID`)
         );
     """
@@ -52,16 +45,6 @@ class SqlQueries:
         );
     """
     # TRIGERS #
-    createTriggerSetUserRole = f"""
-        CREATE TRIGGER IF NOT EXISTS UpdateRoleToDefault
-        AFTER UPDATE ON {DatabaseTables.USERS}
-        WHEN OLD.RoleID = 1 AND NEW.RoleID IS NULL
-        BEGIN
-            UPDATE {DatabaseTables.USERS}
-            SET RoleID = (SELECT ID FROM {DatabaseTables.ROLES} WHERE Name = 'User')
-            WHERE ID = OLD.ID;
-        END;
-    """
     createTriggerIncrementContractNumber = f"""
         CREATE TRIGGER IF NOT EXISTS IncrementContractNumber
         AFTER INSERT ON {DatabaseTables.ORDERS}
@@ -71,3 +54,20 @@ class SqlQueries:
             WHERE ID = NEW.ID;
         END;
     """
+    createTriggerUpdateOrderStatus = f"""
+        CREATE TRIGGER IF NOT EXISTS UpdateOrderStatusOnMachineStatusChange
+        AFTER UPDATE OF Stage ON {DatabaseTables.MACHINES}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {DatabaseTables.ORDERS}
+            SET Status = 
+                CASE 
+                    WHEN NEW.Stage = "Получение"
+                        THEN "В обработке"
+                    WHEN NEW.Stage != "Склад"
+                        THEN "В работе"
+                    ELSE "Завершен"
+                END
+            WHERE MachineID = NEW.ID;
+        END;
+        """

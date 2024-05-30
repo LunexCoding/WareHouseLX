@@ -12,7 +12,7 @@ class DatabaseTables(StrEnum):
 class ColumnsForInsertion:
     _tableColumns = {
         DatabaseTables.USERS.value: ["Login", "Password", "RoleID", "Fullname"],
-        DatabaseTables.ORDERS.value: ["Client", "Comment", "CreationDate"],
+        DatabaseTables.ORDERS.value: ["Client", "MachineID", "Comment", "CreationDate"],
         DatabaseTables.MACHINES.value: ["Name", "Power", "Speed", "Direction", "Parameter1", "Parameter2", "Stage"]
     }
 

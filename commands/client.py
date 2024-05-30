@@ -56,10 +56,12 @@ class SearchRows(ClientCommand):
 
                 table = args["-t"]
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
-                conditionString = args["-c"]
+                conditionString = args["-c"].replace(Constants.SERVICE_SYMBOL_FOR_ARGS, " ")
                 conditions = ProcessConditions.process(conditionString.split("|"), referenceBook.columns)
                 data = referenceBook.searchRowByParams(conditions)
-                return COMMAND_STATUS.EXECUTED, data
+                if Constants.CREATION_DATE_FIELD in data:
+                    data["CreationDate"] = convertDateToTimestamp(data["CreationDate"])
+                return COMMAND_STATUS.EXECUTED, [data]
 
             return executionPermission
         return COMMAND_STATUS.FAILED, None
@@ -258,6 +260,8 @@ class UpdateRow(ClientCommand):
                 values = [value.replace(Constants.SERVICE_SYMBOL_FOR_ARGS, " ") for value in args["-v"]]
                 data = dict(zip(columns, values))
                 rowID = data["ID"]
+                if Constants.CREATION_DATE_FIELD in columns:
+                    data["CreationDate"] = convertTimestampToDate(data["CreationDate"])
                 del data["ID"]
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
                 row = referenceBook.updateRow(rowID, data)

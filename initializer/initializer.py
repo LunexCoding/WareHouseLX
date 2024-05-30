@@ -19,7 +19,6 @@ class Initializer:
         databaseCreationPipeline.addOperation(SqlQueries.createTableRoles)
         databaseCreationPipeline.addOperation(SqlQueries.createTableUsers)
         databaseCreationPipeline.addOperation(SqlQueries.createTableOrders)
-        databaseCreationPipeline.addOperation(SqlQueries.createTableOrderDetails)
         databaseCreationPipeline.addOperation(SqlQueries.createTableMachines)
         databaseCreationPipeline.run()
 
@@ -27,8 +26,8 @@ class Initializer:
     def initializeDatabaseTriggers():
         _log.debug("Creating triggers...")
         triggersCreatePipeLine = DatabasePipeline()
-        triggersCreatePipeLine.addOperation(SqlQueries.createTriggerSetUserRole)
         triggersCreatePipeLine.addOperation(SqlQueries.createTriggerIncrementContractNumber)
+        triggersCreatePipeLine.addOperation(SqlQueries.createTriggerUpdateOrderStatus)
         triggersCreatePipeLine.run()
 
     @staticmethod
