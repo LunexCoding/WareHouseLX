@@ -3,6 +3,7 @@ from database.queries import SqlQueries
 from database.database import DatabaseConnectionFactory
 from settingsConfig import g_settingsConfig
 from tools.dateConverter import convertDateToTimestamp
+from commands.consts import Constants as CMDConstants
 
 
 class _ReferenceBook:
@@ -10,7 +11,6 @@ class _ReferenceBook:
         self._table = table
         self._columns = []
         self._columnsForInsertion = []
-        self._rowList = []
         self._sampleLimit = g_settingsConfig.DatabaseSettings["sampleLimit"]
         self.databaseFactory = databaseFactory
 
@@ -27,7 +27,6 @@ class _ReferenceBook:
         clientOffset = client.getOffset(self._table)
         rows = self._loadRowsFromDB(clientOffset)
         if rows:
-            self._rowList.extend(rows)
             client.updateOffset(self._table, len(rows))
             return rows
         return None
@@ -41,26 +40,27 @@ class _ReferenceBook:
         result = []
         for row in rows:
             rowData = {}
-            for i, column in enumerate(self._columns):
-                rowData[column] = convertDateToTimestamp(row[i]) if "Date" in column else row[i]
+            for index, column in enumerate(self._columns):
+                rowData[column] = convertDateToTimestamp(row[index]) if "Date" in column else row[index]
             result.append(rowData)
         return result
 
     def addRow(self, row):
         if not self._checkNextRowExists():
-            self._insertRowToDB(row)
+            self._addRowToDB(row)
             return self.lastRowID
         return None
 
-    def _insertRowToDB(self, row):
+    def _addRowToDB(self, row):
         columns = []
         for column in row.keys():
             if column in self._columnsForInsertion:
                 columns.append(column)
+            row[column] = row[column].replace(CMDConstants.SERVICE_SYMBOL_FOR_ARGS, " ")
         with self.databaseFactory.createConnection() as db:
             db.execute(
                 SqlQueries.insertIntoTable(self._table, columns),
-                data=list([row[column] for column in columns])
+                data=list([row[column].replace(CMDConstants.SERVICE_SYMBOL, " ") for column in columns])
             )
 
     def _checkNextRowExists(self):
@@ -75,8 +75,10 @@ class _ReferenceBook:
                 return False if nextRowID is None else True
             return False
 
-    def editRow(self, rowID, data):
+    def updateRow(self, rowID, data):
         self._updateRowIntoDB(rowID, data)
+        row = self.searchRowByParams(f"ID = {rowID}")
+        return row
 
     def _updateRowIntoDB(self, rowID, data):
         idColumn = self._columns[0]
@@ -88,6 +90,7 @@ class _ReferenceBook:
 
     def deleteRow(self, rowID):
         self._deleteRowFromDB(rowID)
+        return rowID
 
     def _deleteRowFromDB(self, rowID):
         idColumn = self._columns[0]
@@ -101,7 +104,6 @@ class _ReferenceBook:
             "condition": filterData,
             "tableColumns": self._columns
         }
-
         with self.databaseFactory.createConnection() as db:
             rows = db.getData(
                 SqlQueries.selectFromTable(self._table, requestData, limit, offset),
@@ -127,10 +129,6 @@ class _ReferenceBook:
         return self._columnsForInsertion
 
     @property
-    def rows(self):
-        return self._rowList
-
-    @property
     def lastRowID(self):
         with self.databaseFactory.createConnection() as db:
             return db.getData(
@@ -150,9 +148,6 @@ g_referenceBookFactory = ReferenceBookFactory(DatabaseConnectionFactory(g_settin
 
 g_usersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.USERS)
 g_userRolesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ROLES)
-g_clientsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.CLIENTS)
-g_workshopsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.WORKSHOPS)
-g_stagesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.STAGES)
 g_ordersBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ORDERS)
 g_orderDetailsBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.ORDER_DETAILS)
 g_machinesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.MACHINES)
@@ -160,9 +155,6 @@ g_machinesBook = g_referenceBookFactory.createReferenceBook(DatabaseTables.MACHI
 g_referenceBooks = [
     g_usersBook,
     g_userRolesBook,
-    g_clientsBook,
-    g_workshopsBook,
-    g_stagesBook,
     g_ordersBook,
     g_orderDetailsBook,
     g_machinesBook

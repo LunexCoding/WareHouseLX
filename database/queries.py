@@ -79,9 +79,11 @@ class SqlQueries:
     def _selectFromTableByCondition(tableName, requestData, limit, offset):
         conditions = requestData.get("condition", None)
         tableColumns = requestData.get("tableColumns", None)
+        joins = requestData.get("joins", None)
+        columns = []
+        data = None
+
         if tableColumns is not None:
-            columns = []
-            data = None
             if isinstance(conditions, list):
                 conditionsData = []
                 for condition in conditions:
@@ -90,8 +92,8 @@ class SqlQueries:
                         if word in tableColumns:
                             columns.append(word)
                             conditionData.remove(word)
-                            conditionsData.append(" ".join(conditionData))
-                    data = conditionsData
+                    conditionsData.append(" ".join(conditionData))
+                data = conditionsData
             else:
                 conditionData = conditions.split()
                 for word in conditionData:
@@ -99,20 +101,26 @@ class SqlQueries:
                         columns.append(word)
                         conditionData.remove(word)
                 data = " ".join(conditionData)
-        if len(columns) == 1:
-            columns = ''.join(columns)
+
         query = f"SELECT * FROM {tableName}"
-        if isinstance(data, list):
-            if columns:
-                query += " WHERE "
-                for i, column in enumerate(columns):
-                    query += f"{column} {' '.join(data[i].split())}"
-                    if i < len(columns) - 1:
-                        query += " AND "
+
+        if joins is not None:
+            for join in joins:
+                query += f" JOIN {join} ON {joins[join]}"
+
+        if data is not None:
+            if isinstance(data, list):
+                if columns:
+                    query += " WHERE "
+                    for i, condition in enumerate(data):
+                        query += f"{columns[i]} {condition}"
+                        if i < len(data) - 1:
+                            query += " AND "
+                else:
+                    query += f" WHERE {' AND '.join(data)}"
             else:
-                query += f" WHERE {' '.join(data)}"
-        else:
-            query += f" WHERE {columns} {''.join(data)}"
+                query += f" WHERE {columns[0]} {data}"
+
         if limit is not None:
             query += f" LIMIT {limit}"
         if offset is not None:

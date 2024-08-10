@@ -4,9 +4,6 @@ from strenum import StrEnum
 class DatabaseTables(StrEnum):
     ROLES = "Роли"
     USERS = "Пользователи"
-    CLIENTS = "Клиенты"
-    WORKSHOPS = "Отделения"
-    STAGES = "Этапы"
     ORDERS = "Заказы"
     ORDER_DETAILS = "Детали_заказа"
     MACHINES = "Машины"
@@ -14,9 +11,11 @@ class DatabaseTables(StrEnum):
 
 class ColumnsForInsertion:
     _tableColumns = {
-        DatabaseTables.ORDERS.value: ["ClientID", "CreationDate", "Comment"],
+        DatabaseTables.USERS.value: ["Login", "Password", "RoleID", "Fullname"],
+        DatabaseTables.ORDERS.value: ["Client", "MachineID", "Comment", "CreationDate"],
+        DatabaseTables.MACHINES.value: ["Name", "Power", "Speed", "Direction", "Parameter1", "Parameter2", "Stage"]
     }
 
     @staticmethod
-    def getColumns(table_name):
-        return ColumnsForInsertion._tableColumns.get(table_name, [])
+    def getColumns(tableName):
+        return ColumnsForInsertion._tableColumns.get(tableName, [])

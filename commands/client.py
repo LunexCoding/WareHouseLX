@@ -1,5 +1,3 @@
-import time
-
 from .consts import Constants
 from .status import COMMAND_STATUS
 from .command import BaseCommand, VALUE_TYPE
@@ -58,12 +56,14 @@ class SearchRows(ClientCommand):
 
                 table = args["-t"]
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
-                conditionString = args["-c"]
+                conditionString = args["-c"].replace(Constants.SERVICE_SYMBOL_FOR_ARGS, " ")
                 conditions = ProcessConditions.process(conditionString.split("|"), referenceBook.columns)
                 data = referenceBook.searchRowByParams(conditions)
-                return COMMAND_STATUS.EXECUTED, data
-            return executionPermission
+                if Constants.CREATION_DATE_FIELD in data:
+                    data["CreationDate"] = convertDateToTimestamp(data["CreationDate"])
+                return COMMAND_STATUS.EXECUTED, [data]
 
+            return executionPermission
         return COMMAND_STATUS.FAILED, None
 
 
@@ -80,7 +80,7 @@ class AddRow(ClientCommand):
         }
         self._argsWithoutFlagsOrder = ["-c", "-v", "-t"]
         self.isAuthorizedLevel = True
-        self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
+        self.requiredAccessLevel = ACCESS_LEVEL.USER
 
     def execute(self, client=None, commandArgs=None):
         args = self._getArgs(commandArgs)
@@ -93,16 +93,18 @@ class AddRow(ClientCommand):
                 referenceBook = [book for book in g_referenceBooks if book.table == table][0]
                 columns = args["-c"]
                 if len(columns) == 1 and columns[0] == "*":
-                    columns = referenceBook.columns.copy()
+                    columns = referenceBook.columnsForInsertion.copy()
                 values = args["-v"]
 
                 row = dict(zip(columns, values))
-                row["CreationDate"] = convertTimestampToDate(row["CreationDate"])
+                if Constants.CREATION_DATE_FIELD in columns:
+                    row["CreationDate"] = convertTimestampToDate(row["CreationDate"])
                 rowID = referenceBook.addRow(row)
                 if rowID is not None:
                     status, result = SearchRows().execute(client, f"{table} ID={rowID}")
                     if status == COMMAND_STATUS.EXECUTED:
-                        result["CreationDate"] = convertDateToTimestamp(result["CreationDate"])
+                        if Constants.CREATION_DATE_FIELD in columns:
+                            result["CreationDate"] = convertDateToTimestamp(result["CreationDate"])
                         return COMMAND_STATUS.EXECUTED, [result]
 
                     return COMMAND_STATUS.FAILED, None
@@ -147,6 +149,7 @@ class Authorization(ClientCommand):
                     del user["RoleID"]
                     _log.debug(f"Client is authorized -> ID<{user['ID']}>, fullname: {user['Fullname']}")
                     return COMMAND_STATUS.EXECUTED, [user]
+
                 return COMMAND_STATUS.FAILED, Constants.USER_NOT_FOUND
             return executionPermission
 
@@ -200,30 +203,79 @@ class LoadRows(ClientCommand):
         return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
 
 
-class LongRunningCommand(ClientCommand):
-    COMMAND_NAME = Constants.COMMAND_LONG
+class DeleteRow(ClientCommand):
+    COMMAND_NAME = Constants.COMMAND_DELETE
 
     def __init__(self):
         super().__init__()
         self.msgHelp = None
+        self._allowedFlags = {
+            "-i": VALUE_TYPE.INT,
+            "-t": VALUE_TYPE.STRING
+        }
+        self._argsWithoutFlagsOrder = ["-i", "-t"]
         self.isAuthorizedLevel = True
-        self.requiredAccessLevel = ACCESS_LEVEL.USER
+        self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
 
-    def execute(self, client=None, commandArgs=None, table=None):
-        # Имитация долгой работы на 10 секунд
-        executionPermission = self._checkExecutionPermission(client)
-        if executionPermission[0] == COMMAND_STATUS.EXECUTED:
-            start_time = time.time()
-            while time.time() - start_time < 10:
-                pass
-            return COMMAND_STATUS.EXECUTED, None
-        return executionPermission
+    def execute(self, client=None, commandArgs=None):
+        args = self._getArgs(commandArgs)
+        if self._checkFlags(args):
+
+            executionPermission = self._checkExecutionPermission(client)
+            if executionPermission[0] == COMMAND_STATUS.EXECUTED:
+
+                rowID = args["-i"]
+                table = args["-t"]
+                referenceBook = [book for book in g_referenceBooks if book.table == table][0]
+                referenceBook.deleteRow(rowID)
+                return COMMAND_STATUS.EXECUTED, rowID
+
+            return executionPermission
+        return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
+
+
+class UpdateRow(ClientCommand):
+    COMMAND_NAME = Constants.COMMAND_UPDATE
+
+    def __init__(self):
+        super().__init__()
+        self.msgHelp = None
+        self._allowedFlags = {
+            "-t": VALUE_TYPE.STRING,
+            "-c": VALUE_TYPE.LIST,
+            "-v": VALUE_TYPE.LIST
+        }
+        self._argsWithoutFlagsOrder = ["-c", "-v", "-t"]
+        self.isAuthorizedLevel = True
+        self.requiredAccessLevel = ACCESS_LEVEL.ADMIN
+
+    def execute(self, client=None, commandArgs=None):
+        args = self._getArgs(commandArgs)
+        if self._checkFlags(args):
+
+            executionPermission = self._checkExecutionPermission(client)
+            if executionPermission[0] == COMMAND_STATUS.EXECUTED:
+                table = args["-t"]
+                columns = args["-c"]
+                values = [value.replace(Constants.SERVICE_SYMBOL_FOR_ARGS, " ") for value in args["-v"]]
+                data = dict(zip(columns, values))
+                rowID = data["ID"]
+                if Constants.CREATION_DATE_FIELD in columns:
+                    data["CreationDate"] = convertTimestampToDate(data["CreationDate"])
+                del data["ID"]
+                referenceBook = [book for book in g_referenceBooks if book.table == table][0]
+                row = referenceBook.updateRow(rowID, data)
+                return COMMAND_STATUS.EXECUTED, [row]
+
+            return executionPermission
+        return COMMAND_STATUS.FAILED, Constants.AUTHORIZATION_COMMAND_FAILED
 
 
 COMMANDS = {
     SearchRows.COMMAND_NAME: SearchRows,
     AddRow.COMMAND_NAME: AddRow,
     LoadRows.COMMAND_NAME: LoadRows,
-    LongRunningCommand.COMMAND_NAME: LongRunningCommand,
+    DeleteRow.COMMAND_NAME: DeleteRow,
+    UpdateRow.COMMAND_NAME: UpdateRow,
     Authorization.COMMAND_NAME: Authorization
 }
