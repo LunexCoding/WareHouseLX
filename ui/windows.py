@@ -34,7 +34,6 @@ class BaseWindow(CTk):
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__()
-
         self.context = AuthorizationWindowContext(self, None)
 
 

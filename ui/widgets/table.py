@@ -2,11 +2,14 @@ from tkinter.ttk import Scrollbar, Treeview
 
 from customtkinter import BOTH, CENTER, LEFT, RIGHT, TOP, VERTICAL, CTkFrame, Y
 
+from commands.roles import Roles, RolesInt
+from user import g_user
 from .markup import MARCUP, TYPES_UI_MARKUP
 from .widget import BaseWidget
 from ui.contexts.consts import Constants
 from ui.contexts.popup.dataObjContext import DataObjContext
 from ui.contexts.popup.consts import DataObjContextType
+from .errorLabel import ErrorLabel
 
 
 class TableWidget(BaseWidget):
@@ -20,6 +23,7 @@ class TableWidget(BaseWidget):
         self._count = 1
 
         self.tableFrame = CTkFrame(self._window)
+        self.errorLabel = ErrorLabel(master=self.master, text_color=Constants.ERROR_LABEL_MSG_COLOR, font=Constants.FONT)
         self.tree = Treeview(self.tableFrame, columns=list(self._columns.keys()))
         for header, option in self._columns.items():
             self.tree.heading(header, text=option["text"])
@@ -47,9 +51,13 @@ class TableWidget(BaseWidget):
 
     def _onDoubleClicked(self, event):
         item = self.tree.selection()
-        if item:
-            itemObj = self._dataObj(*self.tree.item(item, "values"))
-            self._createInfoPopupWindow(itemObj)
+        if g_user.role in [Roles.getRole(RolesInt.ADMIN)]:
+            if item:
+                itemObj = self._dataObj(*self.tree.item(item, "values"))
+                self._createInfoPopupWindow(itemObj)
+        else:
+            self.errorLabel.setText("Ошибка доступа")
+            self.errorLabel.show()
 
     def _onSelectClicked(self, event):
         selectedItem = self.tree.selection()

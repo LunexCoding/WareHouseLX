@@ -78,13 +78,14 @@ class DataObjContext(Context):
             self._command(data)
 
     def _validate(self):
-        entriesData = {column: entry.get() for (column, entry) in self._entries.items()}
+        entriesData = {column: entry.get() if len(entry.get()) != 0 else None for (column, entry) in self._entries.items()}
         if self._contextType == DataObjContextType.INFO:
             entriesData["ID"] = self._dataObj.data["ID"]
         mainFieldsData = {column: entriesData[column] for column in self._dataObj.getMainInputFields() if column in entriesData}
+        print(mainFieldsData)
         namesMainFields = {field: fieldData["text"] for field, fieldData in self._dataObj.getFields().items() if field in self._dataObj.getMainInputFields()}
-        if not all(len(value) != 0 for value in mainFieldsData.values()):
-            missingMainFields = [column for column, value in mainFieldsData.items() if len(value) == 0]
+        if not all(value is not None for value in mainFieldsData.values()):
+            missingMainFields = [column for column, value in mainFieldsData.items() if value is None]
             missingMainFieldsNames = ", ".join([namesMainFields[column] for column in missingMainFields])
             self.errorLabel.setText(Constants.ERROR_KEY_FIELDS_EMPTY_MSG.format(missingMainFieldsNames))
             return None

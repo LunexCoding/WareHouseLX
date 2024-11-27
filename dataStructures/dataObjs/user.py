@@ -27,7 +27,8 @@ class User(DataObj):
             "size": ContextsConstants.ENTRY_WIDTH,
             "type": int,
             "widget": WidgetConstants.COMBOBOX,
-            "options": ROLES_FOR_INPUT
+            "options": ROLES_FOR_INPUT,
+            "isForeignKey": True
         },
         "Fullname": {
             "text": "ФИО",

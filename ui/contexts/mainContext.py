@@ -2,6 +2,7 @@ from customtkinter import CTkButton, CTkFrame, Y
 
 from ui.widgets import PageNameWidget, UserInfoWidget
 from user import g_user
+from commands.roles import RolesInt, Roles
 
 from .consts import Constants
 from .pages import Pages
@@ -14,7 +15,7 @@ class MainWindowContext(Context):
         window.title(Constants.PAGE_MAIN)
         self.frame = CTkFrame(window)
 
-        UserInfoWidget(self.frame, g_user)
+        UserInfoWidget(self.frame)
         PageNameWidget(self.frame, Constants.PAGE_MAIN)
 
         self.buttonFrame = CTkFrame(self.frame)
@@ -22,7 +23,8 @@ class MainWindowContext(Context):
         self.buttonOpenOrdersContext = CTkButton(self.buttonFrame, text=Constants.PAGE_ORDERS, font=Constants.FONT, command=self._onButtonOpenOrdersContextClicked)
         self.buttonOpenMachinesContext = CTkButton(self.buttonFrame, text=Constants.PAGE_MACHINES, font=Constants.FONT, command=self._onButtonOpenMachinesContextClicked)
 
-        self.buttonOpenUsersContext.grid(row=0, column=1, padx=10, pady=10)
+        if g_user.role in [Roles.getRole(RolesInt.ADMIN)]:
+            self.buttonOpenUsersContext.grid(row=0, column=1, padx=10, pady=10)
         self.buttonOpenOrdersContext.grid(row=0, column=2, padx=10, pady=10)
         self.buttonOpenMachinesContext.grid(row=0, column=3, padx=10, pady=10)
         self.buttonFrame.grid(row=0, column=1, padx=10, pady=10)

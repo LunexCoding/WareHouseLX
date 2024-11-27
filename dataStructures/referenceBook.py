@@ -15,7 +15,7 @@ class _ReferenceBook:
         self._dataObj = dataObj
 
     def _processingResponse(self, commandType, commandID, response):
-        commandString = CMDConstants.SERVICE_SYMBOL.join([item.replace(CMDConstants.SERVICE_SYMBOL, " ") for item in response]).split()
+        commandString = CMDConstants.SERVICE_SYMBOL_FOR_ARGS.join([item for item in response]).split(CMDConstants.SERVICE_SYMBOL)
         commandIDResponse = int(commandString.pop(0))
         commandStatus = int(commandString.pop(0))
         if commandID == commandIDResponse and commandStatus == COMMAND_STATUS.EXECUTED:
@@ -30,7 +30,7 @@ class _ReferenceBook:
                         rowData.append(convertTimestampToDate(value))
                     else:
                         rowData.append(value)
-                rowData = [item.replace(CMDConstants.SERVICE_SYMBOL, " ") for item in rowData]
+                rowData = [item.replace(CMDConstants.SERVICE_SYMBOL_FOR_ARGS, " ") for item in rowData]
                 if commandType != CMDConstants.COMMAND_DELETE:
                     rows[index] = self._dataObj(*rowData)
                 else:

@@ -1,7 +1,6 @@
 from customtkinter import END, CTkButton, CTkFrame, Y
 
 from ui.widgets import CommandButtonsWidget, PageNameWidget, TableWidget, UserInfoWidget
-from user import g_user
 from tools.tables import DatabaseTables
 from dataStructures.referenceBook import g_ordersBook
 from .consts import Constants
@@ -20,11 +19,10 @@ class PageDataObjContext(Context):
 
         self.frame = CTkFrame(window)
 
-        UserInfoWidget(self.frame, g_user)
+        UserInfoWidget(self.frame)
         PageNameWidget(self.frame, self._referenceBook.table)
         CommandButtonsWidget(
             self.frame,
-            g_user,
             commands={
                 "create": self._onButtonCreateClicked,
                 "search": self._onButtonSearchClicked,
@@ -87,13 +85,14 @@ class PageDataObjContext(Context):
             if not orderRows:
                 g_ordersBook.loadRows()
                 orderRows = [obj for obj in g_ordersBook.rows if obj.data["MachineID"] == newRow.data["ID"]]
-            requiredRow = orderRows[0]
-            if isinstance(requiredRow, dict):
-                newOrderRow = g_ordersBook.search(f"MachineID = {requiredRow['MachineID']}")
-                g_ordersBook.rows[g_ordersBook.rows.index(g_ordersBook.findDataObjByID(requiredRow["ID"]))] = newOrderRow
             else:
-                newOrderRow = g_ordersBook.search(f"MachineID = {requiredRow.data['MachineID']}")
-                g_ordersBook.rows[g_ordersBook.rows.index(requiredRow)] = newOrderRow
+                requiredRow = orderRows[0]
+                if isinstance(requiredRow, dict):
+                    newOrderRow = g_ordersBook.search(f"MachineID = {requiredRow['MachineID']}")
+                    g_ordersBook.rows[g_ordersBook.rows.index(g_ordersBook.findDataObjByID(requiredRow["ID"]))] = newOrderRow
+                else:
+                    newOrderRow = g_ordersBook.search(f"MachineID = {requiredRow.data['MachineID']}")
+                    g_ordersBook.rows[g_ordersBook.rows.index(requiredRow)] = newOrderRow
 
     def _loadRows(self):
         if not self._referenceBook.rows:

@@ -47,14 +47,14 @@ class Order(DataObj):
     _GENERATED_FIELDS = ["CreationDate"]
     _MAIN_INPUT_FIELDS = ["Client"]
 
-    def __init__(self, id, client, contractNumber, machineID, creationDate,  comment=None, status=None):
+    def __init__(self, id, client, contractNumber, machineID, creationDate, comment=None, status=None):
         self._id = int(id)
         self._client = client
         self._contractNumber = int(contractNumber)
         self._machineID = int(machineID)
-        self._status = status
         self._creationDate = creationDate
-        self._comment = comment if comment is not None else ""
+        self._comment = comment
+        self._status = status.capitalize() if status is not None else status
 
     @property
     def data(self):

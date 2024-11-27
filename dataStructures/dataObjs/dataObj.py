@@ -24,3 +24,11 @@ class DataObj:
     @classmethod
     def getEditFields(cls):
         return cls._EDIT_FIELDS
+
+    @property
+    def data(self):
+        return {}
+
+    @property
+    def dataForDisplaying(self):
+        return {}
